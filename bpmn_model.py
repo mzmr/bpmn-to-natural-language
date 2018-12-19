@@ -1,13 +1,13 @@
 from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
 
 from node_type import NodeType
-from pojo.node import Node
+from model.pojo.node import Node
 from collections import namedtuple
 Lane = namedtuple('Lane', 'id name')
 Process = namedtuple('Process', 'id name')
 
 
-class BPMNModel:
+class BPMNModelAdapter:
 
     def __init__(self, bpmn_diagram: BpmnDiagramGraph):
         self.nodes = dict()

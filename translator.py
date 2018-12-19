@@ -1,11 +1,10 @@
 import bpmn_python.bpmn_diagram_rep as diagram
 import os
-import bpmn_python.bpmn_diagram_visualizer as visualizer
 
 from bpmn_description import BPMNDescription
-from bpmn_model import BPMNModel
+from bpmn_model import BPMNModelAdapter
 from node_type import NodeType
-from pojo.node import Node
+from model.pojo.node import Node
 
 
 class Translator:
@@ -13,7 +12,7 @@ class Translator:
     def __init__(self, filepath):
         graph = diagram.BpmnDiagramGraph()
         graph.load_diagram_from_xml_file(os.path.abspath(filepath))
-        self.model_bpmn = BPMNModel(graph)
+        self.model_bpmn = BPMNModelAdapter(graph)
 
         # generowanie diagramu
         # output_directory = "./output/"
