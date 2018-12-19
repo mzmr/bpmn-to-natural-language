@@ -11,7 +11,7 @@ from description_generator.sentence.sentence_database import SentenceDatabase
 IsolatedPredicate = namedtuple('IsolatedPredicate', 'basic sentence_before sentence_after')
 
 
-class Inflector:
+class SentenceGenerator:
 
     def __init__(self):
         self.morf = morfeusz2.Morfeusz()

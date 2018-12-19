@@ -1,4 +1,4 @@
-from description_generator.sentence.inflector import Inflector
+from description_generator.sentence.sentence_generator import SentenceGenerator
 
 
 class BPMNDescription:
@@ -6,7 +6,7 @@ class BPMNDescription:
     def __init__(self, node_flow: list):
         self.node_flow = node_flow
         self.sentences = list()
-        self.inflector = Inflector()
+        self.inflector = SentenceGenerator()
 
     def generate(self):
         for node in self.node_flow:
