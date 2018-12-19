@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:signavio="http://www.signavio.com"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             exporter="Signavio Process Editor, http://www.signavio.com"
+             exporterVersion="10.12.0"
+             expressionLanguage="http://www.w3.org/TR/XPath"
+             id="sid-ee3420f9-a115-43f7-badb-c3e7bcc2980e"
+             targetNamespace="http://www.signavio.com"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+   <collaboration id="sid-collaboration-tag">
+      <extensionElements>
+         <signavio:signavioDiagramMetaData metaKey="revisionid" metaValue="9885099daef8481fa7b58a57e06ce638"/>
+      </extensionElements>
+      <participant id="sid-pizza-delivery" name="Pizza Delivery" processRef="sid-process-tag">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+         </extensionElements>
+      </participant>
+   </collaboration>
+   <process id="sid-process-tag" isClosed="false" isExecutable="false" name="Pizza Delivery" processType="None">
+      <extensionElements/>
+      <laneSet id="sid-lane-set-tag">
+         <lane id="sid-lane-call-center" name="Call Centre">
+            <extensionElements>
+               <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
+            </extensionElements>
+            <flowNodeRef>sid-start-event-receive-pizza-order</flowNodeRef>
+            <flowNodeRef>sid-subprocess-answer-customer-call</flowNodeRef>
+            <flowNodeRef>sid-task-assign-the-order</flowNodeRef>
+         </lane>
+         <lane id="sid-lane-outlet-kitchen" name="Outlet Kitchen">
+            <extensionElements>
+               <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
+            </extensionElements>
+            <flowNodeRef>sid-task-prepare-the-pizza</flowNodeRef>
+            <flowNodeRef>sid-task-cook-the-pizza</flowNodeRef>
+            <flowNodeRef>sid-task-package-the-pizza</flowNodeRef>
+         </lane>
+         <lane id="sid-lane-delivery-management" name="Delivery Management">
+            <extensionElements>
+               <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
+            </extensionElements>
+            <flowNodeRef>sid-subprocess-assign-the-delivery</flowNodeRef>
+         </lane>
+         <lane id="sid-lane-drivers" name="Drivers">
+            <extensionElements>
+               <signavio:signavioMetaData metaKey="bgcolor" metaValue=""/>
+            </extensionElements>
+            <flowNodeRef>sid-parallelgateway-tag</flowNodeRef>
+            <flowNodeRef>sid-task-deliver-the-pizza</flowNodeRef>
+            <flowNodeRef>sid-task-receive-payment</flowNodeRef>
+            <flowNodeRef>sid-endevent-tag</flowNodeRef>
+         </lane>
+      </laneSet>
+      <startEvent id="sid-start-event-receive-pizza-order" name="Receive pizza order">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+         </extensionElements>
+         <outgoing>sid-sequenceflow-01-tag</outgoing>
+      </startEvent>
+      <subProcess completionQuantity="1" id="sid-subprocess-answer-customer-call" isForCompensation="false" name="Answer customer call" startQuantity="1" triggeredByEvent="false">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]"/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-01-tag</incoming>
+         <outgoing>sid-sequenceflow-02-tag</outgoing>
+      </subProcess>
+      <task completionQuantity="1" id="sid-task-assign-the-order" isForCompensation="false" name="Assign the Order" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-02-tag</incoming>
+         <outgoing>sid-sequenceflow-03-tag</outgoing>
+      </task>
+      <task completionQuantity="1" id="sid-task-prepare-the-pizza" isForCompensation="false" name="Prepare the Pizza" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-03-tag</incoming>
+         <outgoing>sid-sequenceflow-04-tag</outgoing>
+      </task>
+      <task completionQuantity="1" id="sid-task-cook-the-pizza" isForCompensation="false" name="Cook the Pizza" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-04-tag</incoming>
+         <outgoing>sid-sequenceflow-05-tag</outgoing>
+         <outgoing>sid-sequenceflow-06-tag</outgoing>
+      </task>
+      <task completionQuantity="1" id="sid-task-package-the-pizza" isForCompensation="false" name="Package the Pizza" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-05-tag</incoming>
+         <outgoing>sid-sequenceflow-08-tag</outgoing>
+      </task>
+      <subProcess completionQuantity="1" id="sid-subprocess-assign-the-delivery" isForCompensation="false" name="Assign the Delivery" startQuantity="1" triggeredByEvent="false">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]"/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-06-tag</incoming>
+         <outgoing>sid-sequenceflow-07-tag</outgoing>
+      </subProcess>
+      <task completionQuantity="1" id="sid-task-deliver-the-pizza" isForCompensation="false" name="Deliver the Pizza" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-09-tag</incoming>
+         <outgoing>sid-sequenceflow-10-tag</outgoing>
+      </task>
+      <task completionQuantity="1" id="sid-task-receive-payment" isForCompensation="false" name="Receive Payment" startQuantity="1">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc"/>
+            <signavio:signavioMetaData metaKey="risklevel" metaValue=""/>
+            <signavio:signavioMetaData metaKey="externaldocuments" metaValue=""/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-10-tag</incoming>
+         <outgoing>sid-sequenceflow-11-tag</outgoing>
+      </task>
+      <endEvent id="sid-endevent-tag" name="">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-11-tag</incoming>
+      </endEvent>
+      <parallelGateway gatewayDirection="Converging" id="sid-parallelgateway-tag" name="">
+         <extensionElements>
+            <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff"/>
+         </extensionElements>
+         <incoming>sid-sequenceflow-07-tag</incoming>
+         <incoming>sid-sequenceflow-08-tag</incoming>
+         <outgoing>sid-sequenceflow-09-tag</outgoing>
+      </parallelGateway>
+      <sequenceFlow id="sid-sequenceflow-01-tag" name="" sourceRef="sid-start-event-receive-pizza-order" targetRef="sid-subprocess-answer-customer-call"/>
+      <sequenceFlow id="sid-sequenceflow-02-tag" name="" sourceRef="sid-subprocess-answer-customer-call" targetRef="sid-task-assign-the-order"/>
+      <sequenceFlow id="sid-sequenceflow-03-tag" name="" sourceRef="sid-task-assign-the-order" targetRef="sid-task-prepare-the-pizza"/>
+      <sequenceFlow id="sid-sequenceflow-04-tag" name="" sourceRef="sid-task-prepare-the-pizza" targetRef="sid-task-cook-the-pizza"/>
+      <sequenceFlow id="sid-sequenceflow-05-tag" name="" sourceRef="sid-task-cook-the-pizza" targetRef="sid-task-package-the-pizza"/>
+      <sequenceFlow id="sid-sequenceflow-06-tag" name="" sourceRef="sid-task-cook-the-pizza" targetRef="sid-subprocess-assign-the-delivery"/>
+      <sequenceFlow id="sid-sequenceflow-07-tag" name="" sourceRef="sid-subprocess-assign-the-delivery" targetRef="sid-parallelgateway-tag"/>
+      <sequenceFlow id="sid-sequenceflow-08-tag" name="" sourceRef="sid-task-package-the-pizza" targetRef="sid-parallelgateway-tag"/>
+      <sequenceFlow id="sid-sequenceflow-09-tag" name="" sourceRef="sid-parallelgateway-tag" targetRef="sid-task-deliver-the-pizza"/>
+      <sequenceFlow id="sid-sequenceflow-10-tag" name="" sourceRef="sid-task-deliver-the-pizza" targetRef="sid-task-receive-payment"/>
+      <sequenceFlow id="sid-sequenceflow-11-tag" name="" sourceRef="sid-task-receive-payment" targetRef="sid-endevent-tag"/>
+   </process>
+   <bpmndi:BPMNDiagram id="sid-graph-diagram">
+      <bpmndi:BPMNPlane bpmnElement="sid-collaboration-tag" id="sid-graph-plane-collaboration-tag">
+         <bpmndi:BPMNShape bpmnElement="sid-pizza-delivery" id="sid-pizza-delivery_gui" isHorizontal="true">
+            <omgdc:Bounds height="767.0" width="1321.0" x="105.0" y="105.0"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="73.28571319580078" width="12.000000000000014" x="110.0" y="451.8571434020996"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-lane-call-center" id="sid-lane-call-center_gui" isHorizontal="true">
+            <omgdc:Bounds height="191.75" width="1291.0" x="135.0" y="105.0"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="58.628570556640625" width="12.0" x="140.0" y="171.5607147216797"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-lane-outlet-kitchen" id="sid-lane-outlet-kitchen_gui" isHorizontal="true">
+            <omgdc:Bounds height="191.75" width="1291.0" x="135.0" y="296.75"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="77.14286041259766" width="12.0" x="140.0" y="354.0535697937012"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-lane-delivery-management" id="sid-lane-delivery-management_gui" isHorizontal="true">
+            <omgdc:Bounds height="191.75" width="1291.0" x="135.0" y="488.5"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="114.94285583496094" width="12.000000000000028" x="140.0" y="526.9035720825195"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-lane-drivers" id="sid-lane-drivers_gui" isHorizontal="true">
+            <omgdc:Bounds height="191.75" width="1291.0" x="135.0" y="680.25"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="38.57143020629883" width="12.0" x="140.0" y="756.8392848968506"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-start-event-receive-pizza-order" id="sid-start-event-receive-pizza-order_gui">
+            <omgdc:Bounds height="30.0" width="30.0" x="180.0" y="185.87500000000003"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-02">
+               <omgdc:Bounds height="11.0" width="96.17142486572266" x="146.91428756713867" y="217.87500000000003"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-subprocess-answer-customer-call" id="sid-subprocess-answer-customer-call_gui" isExpanded="false">
+            <omgdc:Bounds height="79.99999999999997" width="100.0" x="285.0" y="160.87500000000003"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="24.0" width="70.9714241027832" x="299.5492877960205" y="186.87500000000003"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-assign-the-order" id="sid-task-assign-the-order_gui">
+            <omgdc:Bounds height="79.99999999999997" width="100.0" x="460.0" y="160.87500000000003"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="24.0" width="57.857147216796875" x="481.07142639160156" y="186.87500000000003"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-prepare-the-pizza" id="sid-task-prepare-the-pizza_gui">
+            <omgdc:Bounds height="79.99999999999997" width="100.0" x="460.0" y="352.625"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="24.0" width="62.4857177734375" x="478.75714111328125" y="378.625"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-cook-the-pizza" id="sid-task-cook-the-pizza_gui">
+            <omgdc:Bounds height="79.99999999999997" width="100.0" x="635.0" y="352.625"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="12.0" width="80.22857666015625" x="644.8857116699219" y="384.625"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-package-the-pizza" id="sid-task-package-the-pizza_gui">
+            <omgdc:Bounds height="79.99999999999997" width="100.0" x="810.0" y="352.625"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="24.0" width="64.80000305175781" x="827.5999984741211" y="378.625"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-subprocess-assign-the-delivery" id="sid-subprocess-assign-the-delivery_gui" isExpanded="false">
+            <omgdc:Bounds height="80.00000000000003" width="100.0" x="635.0" y="544.7631578947369"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="24.0" width="57.85714340209961" x="656.1064281463623" y="570.7631578947369"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-deliver-the-pizza" id="sid-task-deliver-the-pizza_gui">
+            <omgdc:Bounds height="80.0" width="100.0" x="880.0" y="955.921052631579"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="12.0" width="88.71429443359375" x="980.6428527832031" y="787.921052631579"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-task-receive-payment" id="sid-task-receive-payment_gui">
+            <omgdc:Bounds height="80.0" width="100.0" x="1170.0" y="755.921052631579"/>
+            <bpmndi:BPMNLabel labelStyle="sid-graph-label-style-01">
+               <omgdc:Bounds height="12.0" width="90.25714111328125" x="1174.8714294433594" y="787.921052631579"/>
+            </bpmndi:BPMNLabel>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-endevent-tag" id="sid-endevent-tag_gui">
+            <omgdc:Bounds height="28.0" width="28.0" x="1365.0" y="781.921052631579"/>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNShape bpmnElement="sid-parallelgateway-tag" id="sid-parallelgateway-tag_gui">
+            <omgdc:Bounds height="40.000000000000014" width="40.0" x="840.0" y="776.2565789473684"/>
+         </bpmndi:BPMNShape>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-01-tag" id="sid-sequenceflow-01-tag_gui">
+            <omgdi:waypoint x="210.0" y="200.87500000000003"/>
+            <omgdi:waypoint x="285.0" y="200.875"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-02-tag" id="sid-sequenceflow-02-tag_gui">
+            <omgdi:waypoint x="385.0" y="200.875"/>
+            <omgdi:waypoint x="460.0" y="200.875"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-03-tag" id="sid-sequenceflow-03-tag_gui">
+            <omgdi:waypoint x="510.0" y="240.875"/>
+            <omgdi:waypoint x="510.0" y="352.625"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-04-tag" id="sid-sequenceflow-04-tag_gui">
+            <omgdi:waypoint x="560.0" y="392.625"/>
+            <omgdi:waypoint x="635.0" y="392.625"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-05-tag" id="sid-sequenceflow-05-tag_gui">
+            <omgdi:waypoint x="735.0" y="392.625"/>
+            <omgdi:waypoint x="810.0" y="392.625"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-06-tag" id="sid-sequenceflow-06-tag_gui">
+            <omgdi:waypoint x="685.0" y="432.625"/>
+            <omgdi:waypoint x="685.0" y="544.7631578947369"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-07-tag" id="sid-sequenceflow-07-tag_gui">
+            <omgdi:waypoint x="685.034975517138" y="624.7631578947369"/>
+            <omgdi:waypoint x="685.034975517138" y="796.3092105263157"/>
+            <omgdi:waypoint x="840.0" y="797.0132284235285"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-08-tag" id="sid-sequenceflow-08-tag_gui">
+            <omgdi:waypoint x="860.0494460360958" y="432.625"/>
+            <omgdi:waypoint x="860.4742265225034" y="776.2565789473683"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-09-tag" id="sid-sequenceflow-09-tag_gui">
+            <omgdi:waypoint x="880.0" y="796.9658537471074"/>
+            <omgdi:waypoint x="880.0" y="796.2813288783129"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-10-tag" id="sid-sequenceflow-10-tag_gui">
+            <omgdi:waypoint x="1075.0" y="795.921052631579"/>
+            <omgdi:waypoint x="1170.0" y="795.921052631579"/>
+         </bpmndi:BPMNEdge>
+         <bpmndi:BPMNEdge bpmnElement="sid-sequenceflow-11-tag" id="sid-sequenceflow-11-tag_gui">
+            <omgdi:waypoint x="1270.0" y="795.921052631579"/>
+            <omgdi:waypoint x="1365.0" y="795.921052631579"/>
+         </bpmndi:BPMNEdge>
+      </bpmndi:BPMNPlane>
+      <bpmndi:BPMNLabelStyle id="sid-graph-label-style-02">
+         <omgdc:Font isBold="false" isItalic="false" isStrikeThrough="false" isUnderline="false" name="Arial" size="11.0"/>
+      </bpmndi:BPMNLabelStyle>
+      <bpmndi:BPMNLabelStyle id="sid-graph-label-style-01">
+         <omgdc:Font isBold="false" isItalic="false" isStrikeThrough="false" isUnderline="false" name="Arial" size="12.0"/>
+      </bpmndi:BPMNLabelStyle>
+   </bpmndi:BPMNDiagram>
+</definitions>
