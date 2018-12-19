@@ -1,13 +1,13 @@
-import re
 from collections import namedtuple
 from random import randint
+
 import morfeusz2
 
 from analyser_adapter import AnalyserAdapter
+from pojo.isolated_subject import IsolatedSubject
 from sentence.inflection_params import InflectionParams
-from sentence.sentence_database import SentenceDatabase, SentenceDef
+from sentence.sentence_database import SentenceDatabase
 
-IsolatedSubject = namedtuple('IsolatedSubject', 'basic adjective genitive')
 IsolatedPredicate = namedtuple('IsolatedPredicate', 'basic sentence_before sentence_after')
 
 
@@ -26,23 +26,30 @@ class Inflector:
 
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list):
         sentence_def = SentenceDatabase.sentences_start[randint(0, len(sentence_defs) - 1)]
-        subject = self.__isolate_subject(lane_name)
+        subject_isolated = self.__isolate_subject(lane_name)  # zmienić na __retrieve_subject
         predicate = self.__isolate_predicate(task_text)
 
-        subject_inflected = self.__inflect(subject.basic, sentence_def.subject_infl)
+        subject_params = InflectionParams.inflection_str_to_list(subject_isolated.subject.params)
+        subject_gender = AnalyserAdapter.find_gender(subject_params)
+        subject_sg_or_pl = AnalyserAdapter.find_sg_or_pl(subject_params)
+        sub_infl_params = sentence_def.subject_infl.clone()
+        sub_infl_params.add_param(subject_gender)
+        sub_infl_params.add_param(subject_sg_or_pl)
+        subject_inflected = self.__inflect(subject_isolated.subject.basic, sub_infl_params)
+
         predicate_inflected = self.__inflect(predicate.basic, sentence_def.predicate_infl)
 
         result = list()
         result.append(sentence_def.text_list[0])
 
         if sentence_def.subject_order == 1:
-            self.__append_subject(subject_inflected, subject, result)
+            self.__append_subject(subject_inflected, subject_isolated, result)
             result.append(sentence_def.text_list[1])
             self.__append_predicate(predicate_inflected, predicate, result)
         else:
             self.__append_predicate(predicate_inflected, predicate, result)
             result.append(sentence_def.text_list[1])
-            self.__append_subject(subject_inflected, subject, result)
+            self.__append_subject(subject_inflected, subject_isolated, result)
 
         result.append(sentence_def.text_list[2])
 
@@ -59,19 +66,19 @@ class Inflector:
 
         subject_forms = analyser.find_subjects()
         if subject_forms:
-            sub = subject_forms[0].basic
+            sub = subject_forms[0]
         else:
             raise Exception(f'Could not find subject in "{subject}".')
 
         adj = None
-        adjective_forms = analyser.find_adjectives()
+        adjective_forms = analyser.find_adjectives(sub.params)
         if adjective_forms:
-            adj = adjective_forms[0].basic
+            adj = adjective_forms[0]
 
         gen = None
         genitive_forms = analyser.find_genitives()
         if genitive_forms:
-            gen = genitive_forms[0].basic
+            gen = genitive_forms[0]
 
         return IsolatedSubject(sub, adj, gen)
 
@@ -107,11 +114,11 @@ class Inflector:
 
         if subject.adjective is not None:
             result.append(' ')
-            result.append(subject.adjective)
+            result.append(subject.adjective.inflected)
 
         if subject.genitive is not None:
             result.append(' ')
-            result.append(subject.genitive)
+            result.append(subject.genitive.inflected)
 
     @staticmethod
     def __append_predicate(predicate_inflected: str, predicate: IsolatedPredicate, result: list):

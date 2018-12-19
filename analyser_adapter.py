@@ -1,10 +1,8 @@
-from collections import namedtuple
-
 from morfeusz2 import Morfeusz
 
+from consts import genders
+from pojo.word_inflected import WordInflected
 from sentence.inflection_params import InflectionParams
-
-WordFound = namedtuple('AnalysedWord', 'basic inflected')
 
 
 class AnalyserAdapter:
@@ -16,14 +14,41 @@ class AnalyserAdapter:
         # maybe it should be nom OR ger, not only nom?
         return self.__find_forms(InflectionParams('subst', 'nom'))
 
-    def find_adjectives(self):
-        return self.__find_forms(InflectionParams('adj', 'nom'))
+    def find_adjectives(self, related_subject_inflection: str):
+        params = InflectionParams.inflection_str_to_list(related_subject_inflection)
+
+        gender = self.find_gender(params)
+        sg_or_pl = self.find_sg_or_pl(params)  # TODO
+        return self.__find_forms(InflectionParams('adj', 'nom', gender, sg_or_pl))
 
     def find_genitives(self):
         return self.__find_forms(InflectionParams('subst', 'gen'))
 
     def find_predicates(self):
         return self.__find_forms(InflectionParams('impt'))
+
+    @staticmethod
+    def find_gender(params: list):
+        for group_name, subgroup_names in genders.items():
+            if group_name in params:
+                return group_name
+
+            for subgroup_name in subgroup_names:
+                if subgroup_name in params:
+                    return subgroup_name
+
+        raise Exception(f'Couldn\'t find gender in type "{params}"')
+
+    @staticmethod
+    def find_sg_or_pl(params: list):
+        for p in params:
+            if p == 'sg':
+                return 'sg'
+
+            if p == 'pl':
+                return 'pl'
+
+        raise Exception(f'Couldn\'t find gender in type "{params}"')
 
     def __find_forms(self, params: InflectionParams):
         forms_found = list()
@@ -35,7 +60,7 @@ class AnalyserAdapter:
             if params.matches(word_type):
                 basic = AnalyserAdapter.__get_basic_word_form(an)
                 inflected = AnalyserAdapter.__get_inflected_word_form(an)
-                forms_found.append(WordFound(basic, inflected))
+                forms_found.append(WordInflected(basic, inflected, word_type))
                 word_number = AnalyserAdapter.__get_word_number(an)
                 nums_to_remove.append(word_number)
 
@@ -55,7 +80,7 @@ class AnalyserAdapter:
         return an[2][0]
 
     @staticmethod
-    def __get_word_number(an):
+    def __get_word_number(an: tuple):
         return an[0]
 
     def __remove_word_with_num(self, nums_to_remove: list):

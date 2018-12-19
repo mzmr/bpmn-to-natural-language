@@ -16,7 +16,7 @@ class SentenceDatabase:
         #     InflectionParams('ger', 'sg', 'nom', 'n', 'aff'), 1,
         #     ('Pierwszą czynnością, jaką należy wykonać, jest ', ' przez ', '.')),
         SentenceDef(
-            InflectionParams('subst', 'sg', 'acc', 'm1'), 2,
-            InflectionParams('ger', 'sg', 'gen', 'n', 'aff'), 1,
+            InflectionParams('subst', 'acc'), 2,
+            InflectionParams('ger', 'sg', 'gen', 'aff'), 1,
             ('Poniższy proces rozpoczyna się od ', ' przez ', '.'))
     ]
