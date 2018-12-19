@@ -1,8 +1,8 @@
 from morfeusz2 import Morfeusz
 
-from consts import genders
-from pojo.word_inflected import WordInflected
-from sentence.inflection_params import InflectionParams
+from description_generator.consts import genders
+from description_generator.pojo.word_inflected import WordInflected
+from description_generator.sentence.inflection_params import InflectionParams
 
 
 class AnalyserAdapter:

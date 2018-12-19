@@ -1,4 +1,4 @@
-from sentence.inflector import Inflector
+from description_generator.sentence.inflector import Inflector
 
 
 class BPMNDescription:

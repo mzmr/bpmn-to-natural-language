@@ -1,7 +1,7 @@
 from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
 
-from node_type import NodeType
-from model.pojo.node import Node
+from model.node_type import NodeType
+from model.node import Node
 from collections import namedtuple
 Lane = namedtuple('Lane', 'id name')
 Process = namedtuple('Process', 'id name')

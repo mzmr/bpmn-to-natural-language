@@ -3,10 +3,10 @@ from random import randint
 
 import morfeusz2
 
-from analyser_adapter import AnalyserAdapter
-from pojo.isolated_subject import IsolatedSubject
-from sentence.inflection_params import InflectionParams
-from sentence.sentence_database import SentenceDatabase
+from description_generator.analyser_adapter import AnalyserAdapter
+from description_generator.pojo.isolated_subject import IsolatedSubject
+from description_generator.sentence.inflection_params import InflectionParams
+from description_generator.sentence.sentence_database import SentenceDatabase
 
 IsolatedPredicate = namedtuple('IsolatedPredicate', 'basic sentence_before sentence_after')
 

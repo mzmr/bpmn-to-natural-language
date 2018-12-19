@@ -1,6 +1,6 @@
 import re
 
-from consts import genders
+from description_generator.consts import genders
 
 
 class InflectionParams:

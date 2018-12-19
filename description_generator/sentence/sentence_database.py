@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from sentence.inflection_params import InflectionParams
+from description_generator.sentence.inflection_params import InflectionParams
 
 SentenceDef = namedtuple('SentenceDef', 'subject_infl subject_order predicate_infl predicate_order text_list')
 

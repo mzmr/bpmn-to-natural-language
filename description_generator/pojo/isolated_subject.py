@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from pojo.word_inflected import WordInflected
+from description_generator.pojo.word_inflected import WordInflected
 
 
 class IsolatedSubject(NamedTuple):

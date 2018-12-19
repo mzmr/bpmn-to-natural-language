@@ -1,10 +1,10 @@
 import bpmn_python.bpmn_diagram_rep as diagram
 import os
 
-from bpmn_description import BPMNDescription
-from bpmn_model import BPMNModelAdapter
-from node_type import NodeType
-from model.pojo.node import Node
+from description_generator.bpmn_description import BPMNDescription
+from model.bpmn_model_adapter import BPMNModelAdapter
+from model.node_type import NodeType
+from model.node import Node
 
 
 class Translator:
