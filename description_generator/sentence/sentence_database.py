@@ -6,6 +6,7 @@ SentenceDef = namedtuple('SentenceDef', 'subject_infl subject_order predicate_in
 
 
 class SentenceDatabase:
+
     sentences_start = [
         SentenceDef(
             InflectionParams('subst', 'sg', 'nom'), 1,
@@ -19,4 +20,11 @@ class SentenceDatabase:
             InflectionParams('subst', 'acc'), 2,
             InflectionParams('ger', 'sg', 'gen', 'aff'), 1,
             ('Poniższy proces rozpoczyna się od ', ' przez ', '.'))
+    ]
+
+    sentences_next = [
+        SentenceDef(
+            InflectionParams('subst', 'acc'), 2,
+            InflectionParams('ger', 'sg', 'nom', 'aff'), 1,
+            ('Następnym krokiem jest ', ' przez ', '.'))
     ]

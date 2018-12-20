@@ -78,9 +78,8 @@ class Translator:
         transition_list.append(list())
 
         for path in all_paths:
-            for node in path:
+            for current_path_idx, node in enumerate(path):
                 if node.successors:
-                    current_path_idx = path.index(node)
                     current_node_idx = node_list.index(node)
 
                     if current_path_idx == 0:

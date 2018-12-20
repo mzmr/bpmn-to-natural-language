@@ -24,44 +24,41 @@ class SentenceGenerator:
         else:
             return self.__generate_multiple_node_sentence(start_nodes, SentenceDatabase.sentences_start)
 
-    def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list):
-        sentence_def = SentenceDatabase.sentences_start[randint(0, len(sentence_defs) - 1)]
-        subject_isolated = self.__isolate_subject(lane_name)  # zmienić na __retrieve_subject
-        predicate = self.__isolate_predicate(task_text)
+    def generate_next_sentence(self, node):
+        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
 
-        subject_params = InflectionParams.inflection_str_to_list(subject_isolated.subject.params)
+    def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list):
+        sentence_def = sentence_defs[randint(0, len(sentence_defs) - 1)]
+        subject_analysed = self.__analyse_subject(lane_name)
+        predicate_analysed = self.__analyse_predicate(task_text)
+
+        subject_params = InflectionParams.inflection_str_to_list(subject_analysed.subject.params)
         subject_gender = AnalyserAdapter.find_gender(subject_params)
         subject_sg_or_pl = AnalyserAdapter.find_sg_or_pl(subject_params)
         sub_infl_params = sentence_def.subject_infl.clone()
         sub_infl_params.add_param(subject_gender)
         sub_infl_params.add_param(subject_sg_or_pl)
-        subject_inflected = self.__inflect(subject_isolated.subject.basic, sub_infl_params)
+        subject_inflected = self.__inflect(subject_analysed.subject.basic, sub_infl_params)
 
-        predicate_inflected = self.__inflect(predicate.basic, sentence_def.predicate_infl)
+        predicate_inflected = self.__inflect(predicate_analysed.basic, sentence_def.predicate_infl)
 
         result = list()
         result.append(sentence_def.text_list[0])
 
         if sentence_def.subject_order == 1:
-            self.__append_subject(subject_inflected, subject_isolated, result)
+            self.__append_subject(subject_inflected, subject_analysed, result)
             result.append(sentence_def.text_list[1])
-            self.__append_predicate(predicate_inflected, predicate, result)
+            self.__append_predicate(predicate_inflected, predicate_analysed, result)
         else:
-            self.__append_predicate(predicate_inflected, predicate, result)
+            self.__append_predicate(predicate_inflected, predicate_analysed, result)
             result.append(sentence_def.text_list[1])
-            self.__append_subject(subject_inflected, subject_isolated, result)
+            self.__append_subject(subject_inflected, subject_analysed, result)
 
         result.append(sentence_def.text_list[2])
 
-        # while '' in result:
-        #     result.remove('')
-        #
-        # while None in result:
-        #     result.remove(None)
-
         return ''.join(result)
 
-    def __isolate_subject(self, subject: str):
+    def __analyse_subject(self, subject: str):
         analyser = AnalyserAdapter(subject, self.morf)
 
         subject_forms = analyser.find_subjects()
@@ -82,7 +79,7 @@ class SentenceGenerator:
 
         return IsolatedSubject(sub, adj, gen)
 
-    def __isolate_predicate(self, task_text: str):
+    def __analyse_predicate(self, task_text: str):
         analyser = AnalyserAdapter(task_text, self.morf)
 
         predicate_forms = analyser.find_predicates()
