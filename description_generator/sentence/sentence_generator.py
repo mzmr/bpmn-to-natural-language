@@ -4,11 +4,11 @@ from random import randint
 import morfeusz2
 
 from description_generator.analyser_adapter import AnalyserAdapter
-from description_generator.pojo.isolated_subject import IsolatedSubject
+from description_generator.pojo.isolated_subject import AnalysedSubject
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.sentence_database import SentenceDatabase
 
-IsolatedPredicate = namedtuple('IsolatedPredicate', 'basic sentence_before sentence_after')
+AnalysedPredicate = namedtuple('AnalysedPredicate', 'basic sentence_before sentence_after')
 
 
 class SentenceGenerator:
@@ -27,19 +27,18 @@ class SentenceGenerator:
     def generate_next_sentence(self, node):
         return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
 
+    @staticmethod
+    def generate_end_sentence():
+        sentence_defs = SentenceDatabase.sentences_end
+        return sentence_defs[randint(0, len(sentence_defs) - 1)]
+
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list):
         sentence_def = sentence_defs[randint(0, len(sentence_defs) - 1)]
+
         subject_analysed = self.__analyse_subject(lane_name)
+        subject_inflected = self.__inflect_subject(subject_analysed, sentence_def.subject_infl)
+
         predicate_analysed = self.__analyse_predicate(task_text)
-
-        subject_params = InflectionParams.inflection_str_to_list(subject_analysed.subject.params)
-        subject_gender = AnalyserAdapter.find_gender(subject_params)
-        subject_sg_or_pl = AnalyserAdapter.find_sg_or_pl(subject_params)
-        sub_infl_params = sentence_def.subject_infl.clone()
-        sub_infl_params.add_param(subject_gender)
-        sub_infl_params.add_param(subject_sg_or_pl)
-        subject_inflected = self.__inflect(subject_analysed.subject.basic, sub_infl_params)
-
         predicate_inflected = self.__inflect(predicate_analysed.basic, sentence_def.predicate_infl)
 
         result = list()
@@ -77,7 +76,7 @@ class SentenceGenerator:
         if genitive_forms:
             gen = genitive_forms[0]
 
-        return IsolatedSubject(sub, adj, gen)
+        return AnalysedSubject(sub, adj, gen)
 
     def __analyse_predicate(self, task_text: str):
         analyser = AnalyserAdapter(task_text, self.morf)
@@ -88,7 +87,7 @@ class SentenceGenerator:
 
         pre = predicate_forms[0]
         splitted_task_text = task_text.split(pre.inflected, 1)
-        return IsolatedPredicate(pre.basic, splitted_task_text[0], splitted_task_text[1])
+        return AnalysedPredicate(pre.basic, splitted_task_text[0], splitted_task_text[1])
 
     def __inflect(self, base_word: str, inflection_params: InflectionParams):
         words = self.morf.generate(base_word)
@@ -106,7 +105,7 @@ class SentenceGenerator:
         pass
 
     @staticmethod
-    def __append_subject(subject_inflected: str, subject: IsolatedSubject, result: list):
+    def __append_subject(subject_inflected: str, subject: AnalysedSubject, result: list):
         result.append(subject_inflected)
 
         if subject.adjective is not None:
@@ -118,7 +117,7 @@ class SentenceGenerator:
             result.append(subject.genitive.inflected)
 
     @staticmethod
-    def __append_predicate(predicate_inflected: str, predicate: IsolatedPredicate, result: list):
+    def __append_predicate(predicate_inflected: str, predicate: AnalysedPredicate, result: list):
         if predicate.sentence_before:
             result.append(predicate.sentence_before)
 
@@ -126,3 +125,52 @@ class SentenceGenerator:
 
         if predicate.sentence_after:
             result.append(predicate.sentence_after)
+
+    def generate_and_splitting_sentence(self, successors: list, node_groups: list):
+        sentence_parts = list()
+        sentence_parts.append('W tym momencie następuje podział pracy na równoległe ścieżki,')
+        sentence_parts.append(' wykonywane jednocześnie przez ')
+
+        subject_params = InflectionParams('subst', 'acc')
+
+        for idx, successor in enumerate(successors):
+            analysed_subject = self.__analyse_subject(successor[1].lane.name)
+            inflected_subject = self.__inflect_subject(analysed_subject, subject_params)
+            sentence_parts.append(inflected_subject)
+
+            if idx < len(successors) - 2:
+                sentence_parts.append(', ')
+            elif idx == len(successors) - 2:
+                sentence_parts.append(' i ')
+
+        sentence_parts.append(', opisane odpowiednio w punktach ')
+
+        for idx, successor in enumerate(successors):
+            group_idx = SentenceGenerator.__find_successor_group_idx(successor[0], node_groups)
+            sentence_parts.append(str(group_idx))
+
+            if idx < len(successors) - 2:
+                sentence_parts.append(', ')
+            elif idx == len(successors) - 2:
+                sentence_parts.append(' oraz ')
+
+        sentence_parts.append('.')
+        return ''.join(sentence_parts)
+
+    @staticmethod
+    def __find_successor_group_idx(successor_idx: int, node_groups: list):
+        for group_idx, group in enumerate(node_groups):
+            if successor_idx == group[0].node_idx:
+                return group_idx
+
+        raise Exception(f'Couldn\'t find group for node with id {successor_idx}')
+
+    def __inflect_subject(self, subject_analysed: AnalysedSubject, infl_par: InflectionParams):
+        subject_params = InflectionParams.inflection_str_to_list(subject_analysed.subject.params)
+        subject_gender = AnalyserAdapter.find_gender(subject_params)
+        subject_sg_or_pl = AnalyserAdapter.find_sg_or_pl(subject_params)
+        sub_infl_params = infl_par.clone()
+        sub_infl_params.add_params(subject_gender, subject_sg_or_pl)
+        subject_inflected = self.__inflect(subject_analysed.subject.basic, sub_infl_params)
+        return subject_inflected
+

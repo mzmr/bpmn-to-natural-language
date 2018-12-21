@@ -1,5 +1,3 @@
-from sentence.inflector import Inflector
-
 # Bezokolicznik                         - INF - Infinitive
 # Rzeczownik odczasownikowy             - GER - Gerund
 # Tryb rozkazujący                      - IMP - Imperative mood
@@ -15,7 +13,7 @@ from sentence.inflector import Inflector
 import morfeusz2
 morf = morfeusz2.Morfeusz()
 
-for text in (u'Centrum telefoniczne.', u'Musi zrozumieć', u'Zarządzanie dostawą', u'Zarządca dostaw'):
+for text in (u'Centrum telefoniczne.', u'Musi zrozumieć', u'Zarządzanie dostawą', u'Na początku kierowca musi przyjąć mandat'):
     print(text)
     analysis = morf.analyse(text)
 
@@ -46,5 +44,8 @@ translation = translator.translate()
 
 print('======= Opis modelu: =======')
 
-for t in translation:
-    print(t)
+for idx, t in enumerate(translation):
+    print(f'\nGroup {idx + 1}:')
+
+    for sen_idx, sentence in enumerate(t):
+        print(f'{sen_idx + 1}. {sentence}')

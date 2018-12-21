@@ -14,22 +14,35 @@ class BPMNDescription:
         node_groups = self.__create_node_groups()
         sentences = list()
 
-        for node in self.node_flow:
-            successors = [self.node_flow[i] for i in node[1]]
+        for node_group in node_groups:
+            group_sentences = list()
 
-            if node[0] is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
-                start_nodes = [s[0] for s in successors]
-                start_sentence = self.generator.generate_start_sentence(start_nodes)
-                sentences.append(start_sentence)
-            elif node[0].type == NodeType.end_event:
-                print('endEvent node...')
-            elif node[0].type == NodeType.parallel_gateway:
-                print('parallelGateway node...')
-            elif node[0].type == NodeType.start_event:
-                print('startEvent node...')
-            else:
-                next_sentence = self.generator.generate_next_sentence(node[0])
-                sentences.append(next_sentence)
+            for group_el in node_group:
+                node = self.node_flow[group_el.node_idx][0]
+                successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
+
+                if node is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
+                    sentence = self.generator.generate_start_sentence([s[1] for s in successors])
+                    group_sentences.append(sentence)
+                elif node.type == NodeType.end_event:
+                    sentence = self.generator.generate_end_sentence()
+                    group_sentences.append(sentence)
+                elif node.type == NodeType.parallel_gateway:
+                    if group_el.status == NodeGroupElStatus.splitting:
+                        sentence = self.generator.generate_and_splitting_sentence(successors, node_groups)
+                    elif group_el.status == NodeGroupElStatus.normal:
+                        sentence = ''  # TODO
+                    else:
+                        raise Exception()
+
+                    group_sentences.append(sentence)
+                elif node.type == NodeType.start_event:
+                    print('startEvent node...')
+                else:
+                    sentence = self.generator.generate_next_sentence(node)
+                    group_sentences.append(sentence)
+
+            sentences.append(group_sentences)
 
         return sentences
 
@@ -102,7 +115,7 @@ class BPMNDescription:
             return NodeGroupElStatus.end
 
         if succ_number > 1:
-            return NodeGroupElStatus.xor
+            return NodeGroupElStatus.splitting
 
         # if succ_number == 1:
         successor_idx = successors[0]

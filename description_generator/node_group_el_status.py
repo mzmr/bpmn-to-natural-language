@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class NodeGroupElStatus(Enum):
-    xor = 'xor'
+    splitting = 'splitting'
     joining = 'joining'
     normal = 'normal'
     end = 'end'

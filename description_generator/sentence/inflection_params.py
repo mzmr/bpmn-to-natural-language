@@ -30,9 +30,9 @@ class InflectionParams:
         if param not in self.infl_params:
             self.infl_params.append(param)
 
-    # def add_params(self, params: list):
-    #     for p in params:
-    #         self.add_param(p)
+    def add_params(self, *params: str):
+        for p in params:
+            self.add_param(p)
 
     @staticmethod
     def inflection_str_to_list(inflection: str):
