@@ -15,7 +15,7 @@ class InflectionParams:
         new_obj.infl_params = list(self.infl_params)
         return new_obj
 
-    def matches(self, inflection: str):
+    def matches(self, inflection: str) -> bool:
         their_params = InflectionParams.inflection_str_to_list(inflection)
         my_genders = InflectionParams.__extract_genders(self.infl_params)
         their_genders = InflectionParams.__extract_genders(their_params)
@@ -26,20 +26,20 @@ class InflectionParams:
 
         return set(self.infl_params).issubset(their_params)
 
-    def add_param(self, param: str):
+    def add_param(self, param: str) -> None:
         if param not in self.infl_params:
             self.infl_params.append(param)
 
-    def add_params(self, *params: str):
+    def add_params(self, *params: str) -> None:
         for p in params:
             self.add_param(p)
 
     @staticmethod
-    def inflection_str_to_list(inflection: str):
+    def inflection_str_to_list(inflection: str) -> list:
         return re.split(r'[:.]', inflection)
 
     @staticmethod
-    def __extract_genders(params: list):
+    def __extract_genders(params: list) -> list:
         genders_extracted = list()
 
         for key, values in genders.items():

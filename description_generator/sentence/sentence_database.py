@@ -7,6 +7,11 @@ SentenceDef = namedtuple('SentenceDef', 'subject_infl subject_order predicate_in
 
 class SentenceDatabase:
 
+    sentences_intro_single = [
+        'W tym miejscu poniższy proces ma swój początek.',
+        'Opisywany proces rozpoczyna się następującymi zadaniami.'
+    ]
+
     sentences_start = [
         SentenceDef(
             InflectionParams('subst', 'sg', 'nom'), 1,

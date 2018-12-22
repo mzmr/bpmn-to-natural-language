@@ -20,7 +20,7 @@ class Translator:
         # output_png_file = "diagram_image"
         # visualizer.bpmn_diagram_to_png(bpmn_graph, output_directory + output_png_file)
 
-    def translate(self):
+    def translate(self) -> list:
         print("Started translation...")
 
         start_events = self.__obtain_start_events()
@@ -31,15 +31,15 @@ class Translator:
         print("Finished translation.")
         return description
 
-    def __obtain_start_events(self):
+    def __obtain_start_events(self) -> list:
         return [n for n in self.model_bpmn.nodes.values() if n.type == NodeType.start_event]
 
-    def __create_all_possible_node_paths(self, start_events: list):
+    def __create_all_possible_node_paths(self, start_events: list) -> list:
         paths_lists = [self.__create_all_paths_from_node(start) for start in start_events]
         return [p for paths in paths_lists for p in paths]
 
     @staticmethod
-    def __create_all_paths_from_node(start_event: Node):
+    def __create_all_paths_from_node(start_event: Node) -> list:
         paths = list()
         paths_temp = list()
         paths_temp.append([[], start_event])
@@ -65,7 +65,7 @@ class Translator:
 
         return paths
 
-    def __create_node_flow_list(self, all_paths: list):
+    def __create_node_flow_list(self, all_paths: list) -> list:
         node_list = list(self.model_bpmn.nodes.values())
         node_list.insert(0, None)
         transition_list = [list() for _ in range(len(self.model_bpmn.nodes) + 1)]

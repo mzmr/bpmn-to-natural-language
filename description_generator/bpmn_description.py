@@ -10,12 +10,12 @@ class BPMNDescription:
         self.node_flow = node_flow
         self.generator = SentenceGenerator()
 
-    def generate(self):
+    def generate(self) -> list:
         groups = self.__create_node_groups()
         sentences = [[self.__generate_sentence(el, groups) for el in gr] for gr in groups]
         return sentences
 
-    def __create_node_groups(self):
+    def __create_node_groups(self) -> list:
         node_groups = list()
 
         for idx, nf in enumerate(self.node_flow):
@@ -26,7 +26,7 @@ class BPMNDescription:
 
         return node_groups
 
-    def __insert_node_into_groups(self, node_idx: int, node: tuple, node_groups: list):
+    def __insert_node_into_groups(self, node_idx: int, node: tuple, node_groups: list) -> None:
         successors = node[1]
         status = self.__get_group_element_status(node)
         new_group_el = NodeGroupEl(node_idx, successors, status)
@@ -46,7 +46,7 @@ class BPMNDescription:
         node_groups.append([new_group_el])
 
     @staticmethod
-    def __consolidate_groups(node_groups: list):
+    def __consolidate_groups(node_groups: list) -> bool:
         group_to_extend = None
         next_node_idx = None
 
@@ -77,7 +77,7 @@ class BPMNDescription:
         del node_groups[ng_to_remove]
         return True
 
-    def __get_group_element_status(self, node: tuple):
+    def __get_group_element_status(self, node: tuple) -> NodeGroupElStatus:
         successors = node[1]
         succ_number = len(successors)
 
@@ -94,7 +94,7 @@ class BPMNDescription:
         else:
             return NodeGroupElStatus.normal
 
-    def __generate_sentence(self, group_el: NodeGroupEl, node_groups: list):
+    def __generate_sentence(self, group_el: NodeGroupEl, node_groups: list) -> str:
         node = self.node_flow[group_el.node_idx][0]
         predecessors = [(i, n[0]) for i, n in enumerate(self.node_flow) if group_el.node_idx in n[1]]
         successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
@@ -118,6 +118,3 @@ class BPMNDescription:
             return self.generator.generate_start_sentence(node)
 
         return self.generator.generate_next_sentence(node)
-
-    def __find_predecessors(self, group_el: NodeGroupEl):
-        pass
