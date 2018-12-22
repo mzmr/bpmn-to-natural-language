@@ -30,8 +30,8 @@ class SentenceGenerator:
     def generate_and_splitting_sentence(self, successors: list, node_groups: list):
         return self.__generate_splitting_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
 
-    def generate_and_joining_sentence(self, node_idx: int, node: Node, node_groups: list):
-        return self.__generate_joining_sentence(node_idx, node, node_groups, SentenceDatabase.sentences_and_joining)
+    def generate_and_joining_sentence(self, predecessors: list, node: Node, node_groups: list):
+        return self.__generate_joining_sentence(predecessors, node, node_groups, SentenceDatabase.sentences_and_joining)
 
     def generate_xor_splitting_sentence(self):
         return ''
@@ -166,48 +166,55 @@ class SentenceGenerator:
 
         sentence = list()
         sentence.append(sentence_def.text_list[0])
-
-        for idx, successor in enumerate(successors):
-            analysed_subject = self.__analyse_subject(successor[1].lane.name)
-            inflected_subject = self.__inflect_subject(analysed_subject.subject, sentence_def.subject_infl)
-            sentence.append(inflected_subject)
-
-            if idx < len(successors) - 2:
-                sentence.append(', ')
-            elif idx == len(successors) - 2:
-                sentence.append(' i ')
-
+        succ_subjects = [s[1].lane.name for s in successors]
+        sentence.append(self.__list_inflected_subjects(succ_subjects, sentence_def.subject_infl))
         sentence.append(sentence_def.text_list[1])
-
-        for idx, successor in enumerate(successors):
-            group_idx = SentenceGenerator.__find_successor_group_idx(successor[0], node_groups)
-            sentence.append(str(group_idx))
-
-            if idx < len(successors) - 2:
-                sentence.append(', ')
-            elif idx == len(successors) - 2:
-                sentence.append(' oraz ')
-
+        succ_ids = [s[0] for s in successors]
+        sentence.append(self.__list_points(succ_ids, node_groups))
         sentence.append(sentence_def.text_list[2])
         return ''.join(sentence)
 
-    def __generate_joining_sentence(self, node_idx: int, node: Node, node_groups: list, sentences_defs: list):
+    def __generate_joining_sentence(self, predecessors: list, node: Node, node_groups: list, sentences_defs: list):
         sentence_def = random_el(sentences_defs)
 
         sentence = list()
         sentence.append(sentence_def.text_list[0])
-
-        predecessors_ids = [gr[-1].node_idx for gr in node_groups if node_idx in gr[-1].successors_ids]
-
-        predecessors = list()
-        for pred_id in predecessors_ids:
-            pass
-
-
+        pred_subjects = [p.lane.name for p in node.predecessors]
+        sentence.append(self.__list_inflected_subjects(pred_subjects, sentence_def.subject_infl))
         sentence.append(sentence_def.text_list[1])
-
-        # TODO znaleźć poprzedników gdzieś, żeby wziąć z nich nazwy podmiotów, trzeba też punkty grup, ale to chyba w pętli wcześniej
-
+        pred_ids = [p[0] for p in predecessors]
+        sentence.append(SentenceGenerator.__list_points(pred_ids, node_groups))
         sentence.append(sentence_def.text_list[2])
 
         return ''.join(sentence)
+
+    def __list_inflected_subjects(self, subjects: list, subject_infl: InflectionParams):
+        infl_subs = list()
+
+        for idx, subject in enumerate(subjects):
+            analysed_subject = self.__analyse_subject(subject)
+            inflected_subject = self.__inflect_subject(analysed_subject.subject, subject_infl)
+            infl_subs.append(SentenceGenerator.__word_with_comma(inflected_subject, idx, subjects))
+
+        return ''.join(infl_subs)
+
+    @staticmethod
+    def __list_points(nodes_ids: list, node_groups: list):
+        points = list()
+
+        for idx, node_id in enumerate(nodes_ids):
+            group_idx = SentenceGenerator.__find_successor_group_idx(node_id, node_groups)
+            points.append(SentenceGenerator.__word_with_comma(str(group_idx + 1), idx, nodes_ids))
+
+        return ''.join(points)
+
+    @staticmethod
+    def __word_with_comma(word: str, idx: int, word_list: list):
+        conj = random_el(['i', 'oraz'])
+
+        if idx < len(word_list) - 2:
+            return f'{word}, '
+        elif idx == len(word_list) - 2:
+            return f'{word} {conj} '
+        else:
+            return word

@@ -96,6 +96,7 @@ class BPMNDescription:
 
     def __generate_sentence(self, group_el: NodeGroupEl, node_groups: list):
         node = self.node_flow[group_el.node_idx][0]
+        predecessors = [(i, n[0]) for i, n in enumerate(self.node_flow) if group_el.node_idx in n[1]]
         successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
 
         if node is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
@@ -109,7 +110,7 @@ class BPMNDescription:
                 return self.generator.generate_and_splitting_sentence(successors, node_groups)
 
             if group_el.status == NodeGroupElStatus.normal:
-                return self.generator.generate_and_joining_sentence(group_el.node_idx, node, node_groups)
+                return self.generator.generate_and_joining_sentence(predecessors, node, node_groups)
 
             raise Exception()
 
@@ -117,3 +118,6 @@ class BPMNDescription:
             return self.generator.generate_start_sentence(node)
 
         return self.generator.generate_next_sentence(node)
+
+    def __find_predecessors(self, group_el: NodeGroupEl):
+        pass
