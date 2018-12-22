@@ -30,6 +30,21 @@ class SentenceGenerator:
     def generate_and_splitting_sentence(self, successors: list, node_groups: list):
         return self.__generate_splitting_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
 
+    def generate_and_joining_sentence(self, node_idx: int, node: Node, node_groups: list):
+        return self.__generate_joining_sentence(node_idx, node, node_groups, SentenceDatabase.sentences_and_joining)
+
+    def generate_xor_splitting_sentence(self):
+        return ''
+
+    def generate_xor_joining_sentence(self):
+        return ''
+
+    def generate_or_splitting_sentence(self):
+        return ''
+
+    def generate_or_joining_sentence(self):
+        return ''
+
     def generate_end_sentence(self):
         return random_el(SentenceDatabase.sentences_end)
 
@@ -174,4 +189,25 @@ class SentenceGenerator:
                 sentence.append(' oraz ')
 
         sentence.append(sentence_def.text_list[2])
+        return ''.join(sentence)
+
+    def __generate_joining_sentence(self, node_idx: int, node: Node, node_groups: list, sentences_defs: list):
+        sentence_def = random_el(sentences_defs)
+
+        sentence = list()
+        sentence.append(sentence_def.text_list[0])
+
+        predecessors_ids = [gr[-1].node_idx for gr in node_groups if node_idx in gr[-1].successors_ids]
+
+        predecessors = list()
+        for pred_id in predecessors_ids:
+            pass
+
+
+        sentence.append(sentence_def.text_list[1])
+
+        # TODO znaleźć poprzedników gdzieś, żeby wziąć z nich nazwy podmiotów, trzeba też punkty grup, ale to chyba w pętli wcześniej
+
+        sentence.append(sentence_def.text_list[2])
+
         return ''.join(sentence)

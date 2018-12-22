@@ -33,13 +33,15 @@ class BPMNDescription:
 
         for ng in node_groups:
             for ng_el_idx, ng_el in enumerate(ng):
-                if node_idx in ng_el.successors_ids:
-                    if ng_el.status == NodeGroupElStatus.normal:
-                        ng.append(new_group_el)
-                    else:
-                        node_groups.append([new_group_el])
+                if node_idx not in ng_el.successors_ids:
+                    continue
 
-                    return
+                if ng_el.status == NodeGroupElStatus.normal:
+                    ng.append(new_group_el)
+                else:
+                    node_groups.append([new_group_el])
+
+                return
 
         node_groups.append([new_group_el])
 
@@ -76,7 +78,6 @@ class BPMNDescription:
         return True
 
     def __get_group_element_status(self, node: tuple):
-        # TODO: przy tworzeniu new_group_el uzależnić status od informacji o gatewayach (jak będą zrobione)
         successors = node[1]
         succ_number = len(successors)
 
@@ -86,13 +87,12 @@ class BPMNDescription:
         if succ_number > 1:
             return NodeGroupElStatus.splitting
 
-        successor_idx = successors[0]
-        predecessors = sum(True for n in self.node_flow if successor_idx in n[1])
+        pred_number = len(self.node_flow[successors[0]][0].predecessors)
 
-        if predecessors == 1:
-            return NodeGroupElStatus.normal
-        else:
+        if pred_number > 1:
             return NodeGroupElStatus.joining
+        else:
+            return NodeGroupElStatus.normal
 
     def __generate_sentence(self, group_el: NodeGroupEl, node_groups: list):
         node = self.node_flow[group_el.node_idx][0]
@@ -109,7 +109,7 @@ class BPMNDescription:
                 return self.generator.generate_and_splitting_sentence(successors, node_groups)
 
             if group_el.status == NodeGroupElStatus.normal:
-                return ''  # TODO
+                return self.generator.generate_and_joining_sentence(group_el.node_idx, node, node_groups)
 
             raise Exception()
 

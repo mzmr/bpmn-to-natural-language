@@ -29,6 +29,9 @@ class BPMNModelAdapter:
             if node_dst not in node_src.successors:
                 node_src.successors.append(node_dst)
 
+            if node_src not in node_dst.predecessors:
+                node_dst.predecessors.append(node_src)
+
     def __complete_node_params(self, nodes: dict):
         for n in nodes.values():
             node = self.nodes[n['id']]

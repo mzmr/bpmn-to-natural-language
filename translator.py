@@ -5,6 +5,7 @@ from description_generator.bpmn_description import BPMNDescription
 from model.bpmn_model_adapter import BPMNModelAdapter
 from model.node_type import NodeType
 from model.node import Node
+from utils import append_if_not_in
 
 
 class Translator:
@@ -34,13 +35,8 @@ class Translator:
         return [n for n in self.model_bpmn.nodes.values() if n.type == NodeType.start_event]
 
     def __create_all_possible_node_paths(self, start_events: list):
-        all_paths = list()
-
-        for se in start_events:
-            node_paths = self.__create_all_paths_from_node(se)
-            all_paths.extend(node_paths)
-
-        return all_paths
+        paths_lists = [self.__create_all_paths_from_node(start) for start in start_events]
+        return [p for paths in paths_lists for p in paths]
 
     @staticmethod
     def __create_all_paths_from_node(start_event: Node):
@@ -59,43 +55,34 @@ class Translator:
                 continue
 
             current_list.append(current_node)
-            children = list(current_node.successors)
+            children = current_node.successors.copy()
 
             if not children:
                 current_path[1] = None
             else:
                 current_path[1] = children.pop()
-
-                for c in children:
-                    paths_temp.append([list(current_list), c])
+                paths_temp.extend([[current_list.copy(), c] for c in children])
 
         return paths
 
     def __create_node_flow_list(self, all_paths: list):
-        node_list = [n for n in self.model_bpmn.nodes.values()]
+        node_list = list(self.model_bpmn.nodes.values())
         node_list.insert(0, None)
-        transition_list = [list() for _ in self.model_bpmn.nodes]
-        transition_list.append(list())
+        transition_list = [list() for _ in range(len(self.model_bpmn.nodes) + 1)]
 
         for path in all_paths:
             for current_path_idx, node in enumerate(path):
-                if node.successors:
-                    current_node_idx = node_list.index(node)
+                if not node.successors:
+                    continue
 
-                    if current_path_idx == 0:
-                        self.__append_if_not_in(current_node_idx, transition_list[0])
+                current_node_idx = node_list.index(node)
 
-                    next_node = path[current_path_idx + 1]
-                    next_node_idx = node_list.index(next_node)
-                    current_node_transition = transition_list[current_node_idx]
-                    self.__append_if_not_in(next_node_idx, current_node_transition)
+                if current_path_idx == 0:
+                    append_if_not_in(current_node_idx, transition_list[0])
+
+                next_node = path[current_path_idx + 1]
+                next_node_idx = node_list.index(next_node)
+                current_node_transition = transition_list[current_node_idx]
+                append_if_not_in(next_node_idx, current_node_transition)
 
         return list(zip(node_list, transition_list))
-
-    @staticmethod
-    def __append_if_not_in(element, the_list: list):
-        if element not in the_list:
-            the_list.append(element)
-            return len(the_list) - 1
-        else:
-            return the_list.index(element)

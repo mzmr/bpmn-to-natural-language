@@ -6,6 +6,7 @@ SentenceDef = namedtuple('SentenceDef', 'subject_infl subject_order predicate_in
 
 
 class SentenceDatabase:
+
     sentences_start = [
         SentenceDef(
             InflectionParams('subst', 'sg', 'nom'), 1,
@@ -34,6 +35,14 @@ class SentenceDatabase:
             None, None,
             ('W tym momencie następuje podział pracy na równoległe ścieżki, wykonywane jednocześnie przez ',
              ', opisane odpowiednio w punktach ', '.'))
+    ]
+
+    sentences_and_joining = [
+        SentenceDef(
+            InflectionParams('subst', 'nom'), 1,
+            None, None,
+            ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.')
+        )
     ]
 
     sentences_end = [

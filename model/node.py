@@ -6,4 +6,5 @@ class Node:
         self.type = ''
         self.process = ''
         self.lane = ''
+        self.predecessors = []
         self.successors = []
