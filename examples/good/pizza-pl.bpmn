@@ -13,7 +13,7 @@
   <process id="sid-process-tag" name="Pizza Delivery" processType="None" isClosed="false" isExecutable="false">
     <extensionElements />
     <laneSet id="sid-lane-set-tag">
-      <lane id="sid-lane-drivers" name="Kierowcy">
+      <lane id="sid-lane-drivers" name="Kierowca">
         <extensionElements>
           <signavio:signavioMetaData metaKey="bgcolor" metaValue="" />
         </extensionElements>
@@ -22,13 +22,13 @@
         <flowNodeRef>sid-task-receive-payment</flowNodeRef>
         <flowNodeRef>sid-endevent-tag</flowNodeRef>
       </lane>
-      <lane id="sid-lane-delivery-management" name="Zarządzanie dostawą">
+      <lane id="sid-lane-delivery-management" name="Dyspozytor">
         <extensionElements>
           <signavio:signavioMetaData metaKey="bgcolor" metaValue="" />
         </extensionElements>
         <flowNodeRef>sid-subprocess-assign-the-delivery</flowNodeRef>
       </lane>
-      <lane id="sid-lane-outlet-kitchen" name="Kuchnia">
+      <lane id="sid-lane-outlet-kitchen" name="Kucharz">
         <extensionElements>
           <signavio:signavioMetaData metaKey="bgcolor" metaValue="" />
         </extensionElements>

@@ -27,6 +27,9 @@ class InflectionParams:
         return set(self.infl_params).issubset(their_params)
 
     def add_param(self, param: str) -> None:
+        if (param in ['sg', 'pl']) and 'inf' in self.infl_params:
+            return
+
         if param not in self.infl_params:
             self.infl_params.append(param)
 

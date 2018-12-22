@@ -1,15 +1,12 @@
-from collections import namedtuple
-
 import morfeusz2
 
 from description_generator.analyser_adapter import AnalyserAdapter
-from description_generator.pojo.isolated_subject import AnalysedSubject
+from description_generator.pojo.analysed_predicate import AnalysedPredicate
+from description_generator.pojo.analysed_subject import AnalysedSubject
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.sentence_database import SentenceDatabase
 from model.node import Node
 from utils import random_el
-
-AnalysedPredicate = namedtuple('AnalysedPredicate', 'subj_basic obj_basic sentence_parts')
 
 
 class SentenceGenerator:
@@ -59,8 +56,12 @@ class SentenceGenerator:
                                                               sentence_def.subject_infl)
 
         predicate_analysed = self.__analyse_predicate(task_text)
-        predicate_inflected = self.__inflect(predicate_analysed.subj_basic, sentence_def.predicate_infl)
-        object_inflected = self.__inflect(predicate_analysed.obj_basic, InflectionParams('subst', 'gen'))
+        predicate_inflected = self.__combine_params_and_inflect(predicate_analysed.predicate.basic,
+                                                                predicate_analysed.predicate.params,
+                                                                sentence_def.predicate_infl)
+        object_inflected = self.__combine_params_and_inflect(predicate_analysed.object.basic,
+                                                             predicate_analysed.object.params,
+                                                             sentence_def.object_infl)
 
         result = list()
         result.append(sentence_def.text_list[0])
@@ -79,7 +80,7 @@ class SentenceGenerator:
         return ''.join(result)
 
     def __analyse_subject(self, subject: str) -> AnalysedSubject:
-        analyser = AnalyserAdapter(subject, self.morf)
+        analyser = AnalyserAdapter(subject.lower(), self.morf)
 
         subject_forms = analyser.find_subjects()
         if subject_forms:
@@ -116,7 +117,7 @@ class SentenceGenerator:
         splitted_task_text = task_text.split(pre.inflected, 1)
         splitted_second = splitted_task_text[1].split(obj.inflected, 1)
         splitted = [splitted_task_text[0], splitted_second[0], splitted_second[1]]
-        return AnalysedPredicate(pre.basic, obj.basic, splitted)
+        return AnalysedPredicate(pre, obj, splitted)
 
     def __inflect(self, base_word: str, inflection_params: InflectionParams) -> str:
         words = self.morf.generate(base_word)
@@ -177,7 +178,12 @@ class SentenceGenerator:
         gender = AnalyserAdapter.find_gender(src_params_list)
         sg_or_pl = AnalyserAdapter.find_sg_or_pl(src_params_list)
         dst_params = dst_params_basic.clone()
-        dst_params.add_params(gender, sg_or_pl)
+
+        if gender:
+            dst_params.add_params(gender, sg_or_pl)
+        else:
+            dst_params.add_param(sg_or_pl)
+
         return dst_params
 
     def __generate_splitting_sentence(self, successors: list, node_groups: list, sentence_defs: list) -> str:

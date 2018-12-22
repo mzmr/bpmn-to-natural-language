@@ -19,7 +19,11 @@ class AnalyserAdapter:
 
         gender = self.find_gender(params)
         sg_or_pl = self.find_sg_or_pl(params)
-        return self.__find_forms(InflectionParams('adj', 'nom', gender, sg_or_pl))
+
+        if gender:
+            return self.__find_forms(InflectionParams('adj', 'nom', gender, sg_or_pl))
+        else:
+            return self.__find_forms(InflectionParams('adj', 'nom', sg_or_pl))
 
     def find_genitives(self) -> list:
         return self.__find_forms(InflectionParams('subst', 'gen'))
@@ -40,7 +44,7 @@ class AnalyserAdapter:
                 if subgroup_name in params:
                     return subgroup_name
 
-        raise Exception(f'Couldn\'t find gender in type "{params}"')
+        return ''
 
     @staticmethod
     def find_sg_or_pl(params: list) -> str:
