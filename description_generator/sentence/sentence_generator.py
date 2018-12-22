@@ -1,12 +1,14 @@
 from collections import namedtuple
-from random import randint
 
 import morfeusz2
 
 from description_generator.analyser_adapter import AnalyserAdapter
 from description_generator.pojo.isolated_subject import AnalysedSubject
+from description_generator.pojo.word_inflected import WordInflected
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.sentence_database import SentenceDatabase
+from model.node import Node
+from utils import random_el
 
 AnalysedPredicate = namedtuple('AnalysedPredicate', 'basic sentence_before sentence_after')
 
@@ -16,27 +18,26 @@ class SentenceGenerator:
     def __init__(self):
         self.morf = morfeusz2.Morfeusz()
 
-    def generate_start_sentence(self, start_nodes: list):
-        if len(start_nodes) == 1:
-            return self.__generate_sentence(start_nodes[0].lane.name,
-                                            start_nodes[0].name,
-                                            SentenceDatabase.sentences_start)
-        else:
-            return self.__generate_multiple_node_sentence(start_nodes, SentenceDatabase.sentences_start)
+    def generate_intro_sentence(self, start_nodes: list):
+        return ''
 
-    def generate_next_sentence(self, node):
+    def generate_start_sentence(self, node: Node):
+        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_start)
+
+    def generate_next_sentence(self, node: Node):
         return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
 
-    @staticmethod
-    def generate_end_sentence():
-        sentence_defs = SentenceDatabase.sentences_end
-        return sentence_defs[randint(0, len(sentence_defs) - 1)]
+    def generate_and_splitting_sentence(self, successors: list, node_groups: list):
+        return self.__generate_splitting_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
+
+    def generate_end_sentence(self):
+        return random_el(SentenceDatabase.sentences_end)
 
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list):
-        sentence_def = sentence_defs[randint(0, len(sentence_defs) - 1)]
+        sentence_def = random_el(sentence_defs)
 
         subject_analysed = self.__analyse_subject(lane_name)
-        subject_inflected = self.__inflect_subject(subject_analysed, sentence_def.subject_infl)
+        subject_inflected = self.__inflect_subject(subject_analysed.subject, sentence_def.subject_infl)
 
         predicate_analysed = self.__analyse_predicate(task_text)
         predicate_inflected = self.__inflect(predicate_analysed.basic, sentence_def.predicate_infl)
@@ -101,9 +102,6 @@ class SentenceGenerator:
 
         raise Exception(f'Word "{base_word}" of one of types "{inflection_params.infl_params}" cannot be found.')
 
-    def __generate_multiple_node_sentence(self, start_nodes: list, sentences_defs: list):
-        pass
-
     @staticmethod
     def __append_subject(subject_inflected: str, subject: AnalysedSubject, result: list):
         result.append(subject_inflected)
@@ -126,37 +124,6 @@ class SentenceGenerator:
         if predicate.sentence_after:
             result.append(predicate.sentence_after)
 
-    def generate_and_splitting_sentence(self, successors: list, node_groups: list):
-        sentence_parts = list()
-        sentence_parts.append('W tym momencie następuje podział pracy na równoległe ścieżki,')
-        sentence_parts.append(' wykonywane jednocześnie przez ')
-
-        subject_params = InflectionParams('subst', 'acc')
-
-        for idx, successor in enumerate(successors):
-            analysed_subject = self.__analyse_subject(successor[1].lane.name)
-            inflected_subject = self.__inflect_subject(analysed_subject, subject_params)
-            sentence_parts.append(inflected_subject)
-
-            if idx < len(successors) - 2:
-                sentence_parts.append(', ')
-            elif idx == len(successors) - 2:
-                sentence_parts.append(' i ')
-
-        sentence_parts.append(', opisane odpowiednio w punktach ')
-
-        for idx, successor in enumerate(successors):
-            group_idx = SentenceGenerator.__find_successor_group_idx(successor[0], node_groups)
-            sentence_parts.append(str(group_idx))
-
-            if idx < len(successors) - 2:
-                sentence_parts.append(', ')
-            elif idx == len(successors) - 2:
-                sentence_parts.append(' oraz ')
-
-        sentence_parts.append('.')
-        return ''.join(sentence_parts)
-
     @staticmethod
     def __find_successor_group_idx(successor_idx: int, node_groups: list):
         for group_idx, group in enumerate(node_groups):
@@ -165,12 +132,46 @@ class SentenceGenerator:
 
         raise Exception(f'Couldn\'t find group for node with id {successor_idx}')
 
-    def __inflect_subject(self, subject_analysed: AnalysedSubject, infl_par: InflectionParams):
-        subject_params = InflectionParams.inflection_str_to_list(subject_analysed.subject.params)
-        subject_gender = AnalyserAdapter.find_gender(subject_params)
-        subject_sg_or_pl = AnalyserAdapter.find_sg_or_pl(subject_params)
-        sub_infl_params = infl_par.clone()
-        sub_infl_params.add_params(subject_gender, subject_sg_or_pl)
-        subject_inflected = self.__inflect(subject_analysed.subject.basic, sub_infl_params)
+    def __inflect_subject(self, subject_infl: WordInflected, infl_par: InflectionParams):
+        sub_infl_params = SentenceGenerator.__create_target_infl_params(subject_infl.params, infl_par)
+        subject_inflected = self.__inflect(subject_infl.basic, sub_infl_params)
         return subject_inflected
 
+    @staticmethod
+    def __create_target_infl_params(src_params: str, dst_params_basic: InflectionParams):
+        src_params_list = InflectionParams.inflection_str_to_list(src_params)
+        gender = AnalyserAdapter.find_gender(src_params_list)
+        sg_or_pl = AnalyserAdapter.find_sg_or_pl(src_params_list)
+        dst_params = dst_params_basic.clone()
+        dst_params.add_params(gender, sg_or_pl)
+        return dst_params
+
+    def __generate_splitting_sentence(self, successors: list, node_groups: list, sentence_defs: list):
+        sentence_def = random_el(sentence_defs)
+
+        sentence = list()
+        sentence.append(sentence_def.text_list[0])
+
+        for idx, successor in enumerate(successors):
+            analysed_subject = self.__analyse_subject(successor[1].lane.name)
+            inflected_subject = self.__inflect_subject(analysed_subject.subject, sentence_def.subject_infl)
+            sentence.append(inflected_subject)
+
+            if idx < len(successors) - 2:
+                sentence.append(', ')
+            elif idx == len(successors) - 2:
+                sentence.append(' i ')
+
+        sentence.append(sentence_def.text_list[1])
+
+        for idx, successor in enumerate(successors):
+            group_idx = SentenceGenerator.__find_successor_group_idx(successor[0], node_groups)
+            sentence.append(str(group_idx))
+
+            if idx < len(successors) - 2:
+                sentence.append(', ')
+            elif idx == len(successors) - 2:
+                sentence.append(' oraz ')
+
+        sentence.append(sentence_def.text_list[2])
+        return ''.join(sentence)

@@ -11,39 +11,8 @@ class BPMNDescription:
         self.generator = SentenceGenerator()
 
     def generate(self):
-        node_groups = self.__create_node_groups()
-        sentences = list()
-
-        for node_group in node_groups:
-            group_sentences = list()
-
-            for group_el in node_group:
-                node = self.node_flow[group_el.node_idx][0]
-                successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
-
-                if node is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
-                    sentence = self.generator.generate_start_sentence([s[1] for s in successors])
-                    group_sentences.append(sentence)
-                elif node.type == NodeType.end_event:
-                    sentence = self.generator.generate_end_sentence()
-                    group_sentences.append(sentence)
-                elif node.type == NodeType.parallel_gateway:
-                    if group_el.status == NodeGroupElStatus.splitting:
-                        sentence = self.generator.generate_and_splitting_sentence(successors, node_groups)
-                    elif group_el.status == NodeGroupElStatus.normal:
-                        sentence = ''  # TODO
-                    else:
-                        raise Exception()
-
-                    group_sentences.append(sentence)
-                elif node.type == NodeType.start_event:
-                    print('startEvent node...')
-                else:
-                    sentence = self.generator.generate_next_sentence(node)
-                    group_sentences.append(sentence)
-
-            sentences.append(group_sentences)
-
+        groups = self.__create_node_groups()
+        sentences = [[self.__generate_sentence(el, groups) for el in gr] for gr in groups]
         return sentences
 
     def __create_node_groups(self):
@@ -117,7 +86,6 @@ class BPMNDescription:
         if succ_number > 1:
             return NodeGroupElStatus.splitting
 
-        # if succ_number == 1:
         successor_idx = successors[0]
         predecessors = sum(True for n in self.node_flow if successor_idx in n[1])
 
@@ -125,3 +93,27 @@ class BPMNDescription:
             return NodeGroupElStatus.normal
         else:
             return NodeGroupElStatus.joining
+
+    def __generate_sentence(self, group_el: NodeGroupEl, node_groups: list):
+        node = self.node_flow[group_el.node_idx][0]
+        successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
+
+        if node is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
+            return self.generator.generate_intro_sentence([s[1] for s in successors])
+
+        if node.type == NodeType.end_event:
+            return self.generator.generate_end_sentence()
+
+        if node.type == NodeType.parallel_gateway:
+            if group_el.status == NodeGroupElStatus.splitting:
+                return self.generator.generate_and_splitting_sentence(successors, node_groups)
+
+            if group_el.status == NodeGroupElStatus.normal:
+                return ''  # TODO
+
+            raise Exception()
+
+        if node.type == NodeType.start_event:
+            return self.generator.generate_start_sentence(node)
+
+        return self.generator.generate_next_sentence(node)
