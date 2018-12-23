@@ -1,7 +1,7 @@
 import bpmn_python.bpmn_diagram_rep as diagram
 import os
 
-from description_generator.bpmn_description import BPMNDescription
+from description_generator.description_generator import DescriptionGenerator
 from model.bpmn_model_adapter import BPMNModelAdapter
 from model.node_type import NodeType
 from model.node import Node
@@ -26,7 +26,7 @@ class Translator:
         start_events = self.__obtain_start_events()
         all_paths = self.__create_all_possible_node_paths(start_events)
         node_flow = self.__create_node_flow_list(all_paths)
-        description = BPMNDescription(node_flow).generate()
+        description = DescriptionGenerator(node_flow).generate()
 
         print("Finished translation.")
         return description

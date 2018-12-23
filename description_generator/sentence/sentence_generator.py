@@ -27,10 +27,10 @@ class SentenceGenerator:
         return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
 
     def generate_and_splitting_sentence(self, successors: list, node_groups: list) -> str:
-        return self.__generate_splitting_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
+        return self.__generate_split_or_join_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
 
-    def generate_and_joining_sentence(self, predecessors: list, node: Node, node_groups: list) -> str:
-        return self.__generate_joining_sentence(predecessors, node, node_groups, SentenceDatabase.sentences_and_joining)
+    def generate_and_joining_sentence(self, predecessors: list, node_groups: list) -> str:
+        return self.__generate_split_or_join_sentence(predecessors, node_groups, SentenceDatabase.sentences_and_joining)
 
     def generate_xor_splitting_sentence(self) -> str:
         return ''
@@ -186,32 +186,17 @@ class SentenceGenerator:
 
         return dst_params
 
-    def __generate_splitting_sentence(self, successors: list, node_groups: list, sentence_defs: list) -> str:
+    def __generate_split_or_join_sentence(self, nodes: list, node_groups: list, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
         sentence = list()
         sentence.append(sentence_def.text_list[0])
-        succ_subjects = [s[1].lane.name for s in successors]
-        sentence.append(self.__list_inflected_subjects(succ_subjects, sentence_def.subject_infl))
+        nodes_subjects = [s[1].lane.name for s in nodes]
+        sentence.append(self.__list_inflected_subjects(nodes_subjects, sentence_def.subject_infl))
         sentence.append(sentence_def.text_list[1])
-        succ_ids = [s[0] for s in successors]
-        sentence.append(self.__list_points(succ_ids, node_groups))
+        succ_ids = [s[0] for s in nodes]
+        sentence.append(SentenceGenerator.__list_points(succ_ids, node_groups))
         sentence.append(sentence_def.text_list[2])
-        return ''.join(sentence)
-
-    def __generate_joining_sentence(self, predecessors: list, node: Node, node_groups: list,
-                                    sentences_defs: list) -> str:
-        sentence_def = random_el(sentences_defs)
-
-        sentence = list()
-        sentence.append(sentence_def.text_list[0])
-        pred_subjects = [p.lane.name for p in node.predecessors]
-        sentence.append(self.__list_inflected_subjects(pred_subjects, sentence_def.subject_infl))
-        sentence.append(sentence_def.text_list[1])
-        pred_ids = [p[0] for p in predecessors]
-        sentence.append(SentenceGenerator.__list_points(pred_ids, node_groups))
-        sentence.append(sentence_def.text_list[2])
-
         return ''.join(sentence)
 
     def __list_inflected_subjects(self, subjects: list, subject_infl: InflectionParams) -> str:
