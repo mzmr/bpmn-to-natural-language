@@ -1,4 +1,5 @@
-from bpmn_python.bpmn_diagram_rep import BpmnDiagramGraph
+import bpmn_python.bpmn_diagram_rep as diagram
+import os
 
 from model.node_type import NodeType
 from model.node import Node
@@ -9,11 +10,13 @@ Process = namedtuple('Process', 'id name')
 
 class BPMNModelAdapter:
 
-    def __init__(self, bpmn_diagram: BpmnDiagramGraph):
+    def __init__(self, filepath: str):
         self.nodes = dict()
-        self.__remodel_diagram(bpmn_diagram)
+        graph = diagram.BpmnDiagramGraph()
+        graph.load_diagram_from_xml_file(os.path.abspath(filepath))
+        self.__remodel_diagram(graph)
 
-    def __remodel_diagram(self, bpmn_diagram: BpmnDiagramGraph) -> None:
+    def __remodel_diagram(self, bpmn_diagram: diagram.BpmnDiagramGraph) -> None:
         self.__create_node_list(bpmn_diagram.sequence_flows)
         self.__complete_node_params(bpmn_diagram.diagram_graph.node)
         self.__complete_lanes_and_processes(bpmn_diagram.process_elements)

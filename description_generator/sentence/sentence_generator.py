@@ -1,8 +1,8 @@
 import morfeusz2
 
-from description_generator.analyser_adapter import AnalyserAdapter
-from description_generator.pojo.analysed_predicate import AnalysedPredicate
-from description_generator.pojo.analysed_subject import AnalysedSubject
+from description_generator.sentence.part_of_speech_extractor import PartOfSpeechExtractor
+from description_generator.pojo.extracted_predicate import ExtractedPredicate
+from description_generator.pojo.extracted_subject import ExtractedSubject
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.sentence_database import SentenceDatabase
 from model.node import Node
@@ -32,16 +32,16 @@ class SentenceGenerator:
     def generate_and_joining_sentence(self, predecessors: list, node_groups: list) -> str:
         return self.__generate_split_or_join_sentence(predecessors, node_groups, SentenceDatabase.sentences_and_joining)
 
-    def generate_xor_splitting_sentence(self) -> str:
+    def generate_xor_splitting_sentence(self, successors: list, node_groups: list) -> str:
         return ''
 
-    def generate_xor_joining_sentence(self) -> str:
+    def generate_xor_joining_sentence(self, predecessors: list, node_groups: list) -> str:
         return ''
 
-    def generate_or_splitting_sentence(self) -> str:
+    def generate_or_splitting_sentence(self, successors: list, node_groups: list) -> str:
         return ''
 
-    def generate_or_joining_sentence(self) -> str:
+    def generate_or_joining_sentence(self, predecessors: list, node_groups: list) -> str:
         return ''
 
     def generate_end_sentence(self) -> str:
@@ -50,74 +50,74 @@ class SentenceGenerator:
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
-        subject_analysed = self.__analyse_subject(lane_name)
-        subject_inflected = self.__combine_params_and_inflect(subject_analysed.subject.basic,
-                                                              subject_analysed.subject.params,
+        subject_extracted = self.__extract_subject(lane_name)
+        subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
+                                                              subject_extracted.subject.params,
                                                               sentence_def.subject_infl)
 
-        predicate_analysed = self.__analyse_predicate(task_text)
-        predicate_inflected = self.__combine_params_and_inflect(predicate_analysed.predicate.basic,
-                                                                predicate_analysed.predicate.params,
+        predicate_extracted = self.__extract_predicate(task_text)
+        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
+                                                                predicate_extracted.predicate.params,
                                                                 sentence_def.predicate_infl)
-        object_inflected = self.__combine_params_and_inflect(predicate_analysed.object.basic,
-                                                             predicate_analysed.object.params,
+        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
+                                                             predicate_extracted.object.params,
                                                              sentence_def.object_infl)
 
         result = list()
         result.append(sentence_def.text_list[0])
 
         if sentence_def.subject_order == 1:
-            self.__append_subject(subject_inflected, subject_analysed, result)
+            self.__append_subject(subject_inflected, subject_extracted, result)
             result.append(sentence_def.text_list[1])
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_analysed, result)
+            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
         else:
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_analysed, result)
+            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
             result.append(sentence_def.text_list[1])
-            self.__append_subject(subject_inflected, subject_analysed, result)
+            self.__append_subject(subject_inflected, subject_extracted, result)
 
         result.append(sentence_def.text_list[2])
 
         return ''.join(result)
 
-    def __analyse_subject(self, subject: str) -> AnalysedSubject:
-        analyser = AnalyserAdapter(subject.lower(), self.morf)
+    def __extract_subject(self, subject: str) -> ExtractedSubject:
+        extractor = PartOfSpeechExtractor(subject.lower(), self.morf)
 
-        subject_forms = analyser.find_subjects()
+        subject_forms = extractor.find_subjects()
         if subject_forms:
             sub = subject_forms[0]
         else:
             raise Exception(f'Could not find subject in "{subject}".')
 
         adj = None
-        adjective_forms = analyser.find_adjectives(sub.params)
+        adjective_forms = extractor.find_adjectives(sub.params)
         if adjective_forms:
             adj = adjective_forms[0]
 
         gen = None
-        genitive_forms = analyser.find_genitives()
+        genitive_forms = extractor.find_genitives()
         if genitive_forms:
             gen = genitive_forms[0]
 
-        return AnalysedSubject(sub, adj, gen)
+        return ExtractedSubject(sub, adj, gen)
 
-    def __analyse_predicate(self, task_text: str) -> AnalysedPredicate:
-        analyser = AnalyserAdapter(task_text, self.morf)
+    def __extract_predicate(self, task_text: str) -> ExtractedPredicate:
+        extractor = PartOfSpeechExtractor(task_text, self.morf)
 
-        predicate_forms = analyser.find_predicates()
+        predicate_forms = extractor.find_predicates()
         if predicate_forms:
             pre = predicate_forms[0]
         else:
             raise Exception(f'Could not find predicate in sentence: "{task_text}".')
 
         obj = None
-        object_forms = analyser.find_objects()
+        object_forms = extractor.find_objects()
         if object_forms:
             obj = object_forms[0]
 
         splitted_task_text = task_text.split(pre.inflected, 1)
         splitted_second = splitted_task_text[1].split(obj.inflected, 1)
         splitted = [splitted_task_text[0], splitted_second[0], splitted_second[1]]
-        return AnalysedPredicate(pre, obj, splitted)
+        return ExtractedPredicate(pre, obj, splitted)
 
     def __inflect(self, base_word: str, inflection_params: InflectionParams) -> str:
         words = self.morf.generate(base_word)
@@ -132,7 +132,7 @@ class SentenceGenerator:
         raise Exception(f'Word "{base_word}" of one of types "{inflection_params.infl_params}" cannot be found.')
 
     @staticmethod
-    def __append_subject(subject_inflected: str, subject: AnalysedSubject, result: list) -> None:
+    def __append_subject(subject_inflected: str, subject: ExtractedSubject, result: list) -> None:
         result.append(subject_inflected)
 
         if subject.adjective is not None:
@@ -144,7 +144,7 @@ class SentenceGenerator:
             result.append(subject.genitive.inflected)
 
     @staticmethod
-    def __append_predicate(pred_infl: str, obj_infl: str, predicate: AnalysedPredicate, result: list) -> None:
+    def __append_predicate(pred_infl: str, obj_infl: str, predicate: ExtractedPredicate, result: list) -> None:
         if predicate.sentence_parts[0]:
             result.append(predicate.sentence_parts[0])
 
@@ -175,8 +175,8 @@ class SentenceGenerator:
     @staticmethod
     def __create_target_infl_params(src_params: str, dst_params_basic: InflectionParams) -> InflectionParams:
         src_params_list = InflectionParams.inflection_str_to_list(src_params)
-        gender = AnalyserAdapter.find_gender(src_params_list)
-        sg_or_pl = AnalyserAdapter.find_sg_or_pl(src_params_list)
+        gender = PartOfSpeechExtractor.find_gender(src_params_list)
+        sg_or_pl = PartOfSpeechExtractor.find_sg_or_pl(src_params_list)
         dst_params = dst_params_basic.clone()
 
         if gender:
@@ -203,11 +203,11 @@ class SentenceGenerator:
         infl_subs = list()
 
         for idx, subject in enumerate(subjects):
-            analysed_subject = self.__analyse_subject(subject)
-            inflected_subject = self.__combine_params_and_inflect(analysed_subject.subject.basic,
-                                                                  analysed_subject.subject.params,
+            subject_extracted = self.__extract_subject(subject)
+            subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
+                                                                  subject_extracted.subject.params,
                                                                   subject_infl)
-            infl_subs.append(SentenceGenerator.__word_with_comma(inflected_subject, idx, subjects))
+            infl_subs.append(SentenceGenerator.__word_with_comma(subject_inflected, idx, subjects))
 
         return ''.join(infl_subs)
 

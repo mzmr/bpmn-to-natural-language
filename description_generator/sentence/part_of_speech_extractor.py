@@ -5,7 +5,7 @@ from description_generator.pojo.word_inflected import WordInflected
 from description_generator.sentence.inflection_params import InflectionParams
 
 
-class AnalyserAdapter:
+class PartOfSpeechExtractor:
 
     def __init__(self, text: str, morfeusz: Morfeusz):
         self.analysis = morfeusz.analyse(text)
@@ -62,13 +62,13 @@ class AnalyserAdapter:
         nums_to_remove = list()
 
         for an in self.analysis:
-            word_type = AnalyserAdapter.__get_word_type(an)
+            word_type = PartOfSpeechExtractor.__get_word_type(an)
 
             if params.matches(word_type):
-                basic = AnalyserAdapter.__get_basic_word_form(an)
-                inflected = AnalyserAdapter.__get_inflected_word_form(an)
+                basic = PartOfSpeechExtractor.__get_basic_word_form(an)
+                inflected = PartOfSpeechExtractor.__get_inflected_word_form(an)
                 forms_found.append(WordInflected(basic, inflected, word_type))
-                word_number = AnalyserAdapter.__get_word_number(an)
+                word_number = PartOfSpeechExtractor.__get_word_number(an)
                 nums_to_remove.append(word_number)
 
         self.__remove_word_with_num(nums_to_remove)

@@ -1,6 +1,3 @@
-import bpmn_python.bpmn_diagram_rep as diagram
-import os
-
 from description_generator.description_generator import DescriptionGenerator
 from model.bpmn_model_adapter import BPMNModelAdapter
 from model.node_type import NodeType
@@ -11,9 +8,7 @@ from utils import append_if_not_in
 class Translator:
 
     def __init__(self, filepath):
-        graph = diagram.BpmnDiagramGraph()
-        graph.load_diagram_from_xml_file(os.path.abspath(filepath))
-        self.model_bpmn = BPMNModelAdapter(graph)
+        self.model_bpmn = BPMNModelAdapter(filepath)
 
         # generowanie diagramu
         # output_directory = "./output/"
