@@ -15,7 +15,7 @@ class Translator:
         # output_png_file = "diagram_image"
         # visualizer.bpmn_diagram_to_png(bpmn_graph, output_directory + output_png_file)
 
-    def translate_to_text(self, enumerate_sentences=False) -> list:
+    def translate_to_text(self, enumerate_sentences=False) -> str:
         description = self.translate()
         desc_list = list()
 
