@@ -6,10 +6,12 @@ class SentenceDatabase:
 
     __infl_subst_nom = InflectionParams('subst', 'nom')
     __infl_subst_gen = InflectionParams('subst', 'gen')
+    __infl_subst_inst = InflectionParams('subst', 'inst')
     __infl_inf_perf = InflectionParams('inf', 'perf')
     __infl_subst_acc = InflectionParams('subst', 'acc')
     __infl_ger_nom_aff = InflectionParams('ger', 'nom', 'aff')
     __infl_ger_gen_aff = InflectionParams('ger', 'gen', 'aff')
+    __infl_ger_acc_perf_aff = InflectionParams('ger', 'acc', 'perf', 'aff')
     __infl_fin_ter = InflectionParams('fin', 'ter')
 
     sentences_intro_single = [
@@ -49,20 +51,24 @@ class SentenceDatabase:
             __infl_subst_nom, 1, __infl_fin_ter, 2, __infl_subst_acc,
             ('Potem ', ' ', '.')),
         SentenceDef(
-            __infl_subst_nom, 1, __infl_fin_ter, 2, __infl_subst_acc,
-            ('Następnie ', ' ', '.')),
+            __infl_subst_gen, 1, __infl_inf_perf, 2, __infl_subst_acc,
+            ('Kolejne zadanie należy do ', '. Musi on ', '.')),
     ]
 
     # TODO: wykorzystać zdania bez podmiotu, gdy dany podmiot wykonuje więcej niż jedno zadanie pod rząd
     sentences_next_no_subject = [
         SentenceDef(
             None, None,
-            InflectionParams(), 1, __infl_subst_gen,
+            InflectionParams(), 1, InflectionParams(),
             ('Na tym etapie następuje ', '.')),
         SentenceDef(
             None, None,
-            InflectionParams(), 1,  __infl_subst_acc,
+            InflectionParams(), 1,  InflectionParams(),
             ('Na tym etapie należy ', '.')),
+        SentenceDef(
+            None, None,
+            InflectionParams(), 1, InflectionParams(),
+            ('Następnie ', '.')),
     ]
 
     sentences_and_splitting = [
@@ -77,10 +83,34 @@ class SentenceDatabase:
         SentenceDef(
             InflectionParams('subst', 'nom'), 1,
             None, None, None,
-            ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.')
-        )
+            ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.'))
+    ]
+
+    sentences_xor_splitting = [
+        ('Teraz należy wybrać jedną z dostępnych ścieżek. ',  # <-- tutaj pytanie z gatewaya -->
+         #  jeśli X
+         ', to przejdź do punktu ', '.')
     ]
 
     sentences_end = [
         'Na tym kończy się powyższy proces.'
+    ]
+
+    sentences_group_end = [
+        ('Po zakończeniu tego punktu należy przejść do punktu ', '.'),
+        ('Na tym się kończy ten punkt. Dalsze instrukcje znajdują się w punkcie ', '.'),
+        ('Następnie należy przejść do punktu ', '.'),
+        ('Kolejne zadania opisane są w punkcie ', '.')
+    ]
+
+    sentences_group_start = [
+        SentenceDef(
+            __infl_subst_nom, 1, __infl_ger_acc_perf_aff, 2, __infl_subst_gen,
+            ('W tym punkcie ', ' odpowiada za ', '.')),
+        SentenceDef(
+            __infl_subst_nom, 1, __infl_subst_inst, 2, __infl_subst_gen,
+            ('W tym punkcie ', ' zajmuje się ', '.')),
+        SentenceDef(
+            __infl_subst_acc, 2, __infl_ger_gen_aff, 1, __infl_subst_gen,
+            ('Ten punkt zaczyna się od ', ' przez ', '.')),
     ]

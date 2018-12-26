@@ -21,6 +21,13 @@ class DescriptionGenerator:
         predecessors = [(i, n[0]) for i, n in enumerate(self.node_flow) if group_el.node_idx in n[1]]
         successors = [(i, self.node_flow[i][0]) for i in group_el.successors_ids]
 
+        is_first_in_group = False
+
+        for group in node_groups:
+            if group[0].node_idx == group_el.node_idx:
+                is_first_in_group = True
+                break
+
         if node is None:  # first tuple in a list should look like (None, [start_node1, start_node2...])
             return self.generator.generate_intro_sentence([s[1] for s in successors])
 
@@ -39,4 +46,16 @@ class DescriptionGenerator:
         if node.type == NodeType.start_event:
             return self.generator.generate_start_sentence(node)
 
-        return self.generator.generate_next_sentence(node)
+        if group_el.status == NodeGroupElStatus.joining:
+            if is_first_in_group:
+                sentence = self.generator.generate_group_start_sentence(node)
+            else:
+                sentence = self.generator.generate_next_sentence(node)
+
+            next_group_sentence = self.generator.generate_group_end_sentence(successors, node_groups)
+            return f'{sentence} {next_group_sentence}'
+
+        if is_first_in_group:
+            return self.generator.generate_group_start_sentence(node)
+        else:
+            return self.generator.generate_next_sentence(node)

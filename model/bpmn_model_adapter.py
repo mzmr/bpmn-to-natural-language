@@ -43,10 +43,14 @@ class BPMNModelAdapter:
 
     def __complete_lanes_and_processes(self, process_elements: dict) -> None:
         for p in process_elements.values():
-            for lane in p['laneSet']['lanes'].values():
-                for n in lane['flowNodeRefs']:
-                    self.nodes[n].lane = Lane(lane['id'], lane['name'])
-                    self.nodes[n].process = Process(p['id'], p['name'])
+            process = Process(p['id'], p['name'])
+
+            for l in p['laneSet']['lanes'].values():
+                lane = Lane(l['id'], l['name'])
+
+                for n in l['flowNodeRefs']:
+                    self.nodes[n].lane = lane
+                    self.nodes[n].process = process
 
     def __add_if_not_exist(self, node_id: str) -> Node:
         if not node_id:

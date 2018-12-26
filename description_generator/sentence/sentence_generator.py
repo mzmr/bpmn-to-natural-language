@@ -47,6 +47,21 @@ class SentenceGenerator:
     def generate_end_sentence(self) -> str:
         return random_el(SentenceDatabase.sentences_end)
 
+    def generate_group_end_sentence(self, successors: list, node_groups: list) -> str:
+        sentence_def_tuple = random_el(SentenceDatabase.sentences_group_end)
+
+        succ_id = successors[0][0]  # should be only one when joining
+
+        for group_idx, group in enumerate(node_groups):
+            for el in group:
+                if el.node_idx == succ_id:
+                    return f'{sentence_def_tuple[0]}{group_idx + 1}{sentence_def_tuple[1]}'
+
+        raise Exception()
+
+    def generate_group_start_sentence(self, node: Node):
+        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_group_start)
+
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
