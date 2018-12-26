@@ -42,12 +42,8 @@ from translator import Translator
 # INACZEJ STRZAŁKI ZOSTANĄ NARYSOWANE ODWROTNIE
 
 translator = Translator('./examples/good/pizza-pl.bpmn')
-translation = translator.translate()
+translation = translator.translate_to_text()
 
 print('======= Opis modelu: =======')
 
-for idx, t in enumerate(translation):
-    print(f'\n>>> {idx + 1} <<<')
-
-    for sen_idx, sentence in enumerate(t):
-        print(f'{sen_idx + 1}. {sentence}')
+print(translation)

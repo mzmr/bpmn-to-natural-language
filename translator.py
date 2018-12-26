@@ -15,6 +15,26 @@ class Translator:
         # output_png_file = "diagram_image"
         # visualizer.bpmn_diagram_to_png(bpmn_graph, output_directory + output_png_file)
 
+    def translate_to_text(self, enumerate_sentences=False) -> list:
+        description = self.translate()
+        desc_list = list()
+
+        for idx, desc in enumerate(description):
+            if enumerate_sentences:
+                desc_list.append(f'--- {idx + 1} ---\n')
+            else:
+                desc_list.append(f'{idx + 1}. ')
+
+            for sen_idx, sentence in enumerate(desc):
+                if enumerate_sentences:
+                    desc_list.append(f'{sen_idx + 1}. {sentence}\n')
+                else:
+                    desc_list.append(f'{sentence} ')
+
+            desc_list.append('\n')
+
+        return ''.join(desc_list)
+
     def translate(self) -> list:
         print("Started translation...")
 

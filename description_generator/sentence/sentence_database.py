@@ -6,12 +6,12 @@ class SentenceDatabase:
 
     __infl_subst_nom = InflectionParams('subst', 'nom')
     __infl_subst_gen = InflectionParams('subst', 'gen')
-    __infl_subst_inst = InflectionParams('subst', 'inst')
     __infl_inf_perf = InflectionParams('inf', 'perf')
     __infl_subst_acc = InflectionParams('subst', 'acc')
     __infl_ger_nom_aff = InflectionParams('ger', 'nom', 'aff')
     __infl_ger_gen_aff = InflectionParams('ger', 'gen', 'aff')
     __infl_ger_acc_perf_aff = InflectionParams('ger', 'acc', 'perf', 'aff')
+    __infl_ger_inst = InflectionParams('ger', 'inst')
     __infl_fin_ter = InflectionParams('fin', 'ter')
 
     sentences_intro_single = [
@@ -108,7 +108,7 @@ class SentenceDatabase:
             __infl_subst_nom, 1, __infl_ger_acc_perf_aff, 2, __infl_subst_gen,
             ('W tym punkcie ', ' odpowiada za ', '.')),
         SentenceDef(
-            __infl_subst_nom, 1, __infl_subst_inst, 2, __infl_subst_gen,
+            __infl_subst_nom, 1, __infl_ger_inst, 2, __infl_subst_gen,
             ('W tym punkcie ', ' zajmuje się ', '.')),
         SentenceDef(
             __infl_subst_acc, 2, __infl_ger_gen_aff, 1, __infl_subst_gen,
