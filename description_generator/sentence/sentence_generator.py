@@ -1,8 +1,8 @@
 import morfeusz2
 
 from description_generator.sentence.part_of_speech_extractor import PartOfSpeechExtractor
-from description_generator.pojo.extracted_predicate import ExtractedPredicate
-from description_generator.pojo.extracted_subject import ExtractedSubject
+from description_generator.sentence.pojo.extracted_predicate import ExtractedPredicate
+from description_generator.sentence.pojo.extracted_subject import ExtractedSubject
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.sentence_database import SentenceDatabase
 from model.node import Node
@@ -23,8 +23,11 @@ class SentenceGenerator:
     def generate_start_sentence(self, node: Node) -> str:
         return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_start)
 
-    def generate_next_sentence(self, node: Node) -> str:
-        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
+    def generate_next_sentence(self, node: Node, is_same_subject: bool) -> str:
+        if is_same_subject:
+            return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next_no_subject)
+        else:
+            return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
 
     def generate_and_splitting_sentence(self, successors: list, node_groups: list) -> str:
         return self.__generate_split_or_join_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
@@ -65,10 +68,14 @@ class SentenceGenerator:
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
-        subject_extracted = self.__extract_subject(lane_name)
-        subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
-                                                              subject_extracted.subject.params,
-                                                              sentence_def.subject_infl)
+        if sentence_def.subject_infl is None:
+            subject_inflected = None
+            subject_extracted = None
+        else:
+            subject_extracted = self.__extract_subject(lane_name)
+            subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
+                                                                  subject_extracted.subject.params,
+                                                                  sentence_def.subject_infl)
 
         predicate_extracted = self.__extract_predicate(task_text)
         predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
@@ -81,16 +88,20 @@ class SentenceGenerator:
         result = list()
         result.append(sentence_def.text_list[0])
 
-        if sentence_def.subject_order == 1:
-            self.__append_subject(subject_inflected, subject_extracted, result)
-            result.append(sentence_def.text_list[1])
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+        if subject_inflected and subject_extracted:
+            if sentence_def.subject_order == 1:
+                self.__append_subject(subject_inflected, subject_extracted, result)
+                result.append(sentence_def.text_list[1])
+                self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+            else:
+                self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+                result.append(sentence_def.text_list[1])
+                self.__append_subject(subject_inflected, subject_extracted, result)
+
+            result.append(sentence_def.text_list[2])
         else:
             self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
             result.append(sentence_def.text_list[1])
-            self.__append_subject(subject_inflected, subject_extracted, result)
-
-        result.append(sentence_def.text_list[2])
 
         return ''.join(result)
 

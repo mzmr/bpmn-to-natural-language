@@ -1,5 +1,5 @@
 from description_generator.node_group_el_status import NodeGroupElStatus
-from description_generator.pojo.node_group_el import NodeGroupEl
+from description_generator.node_group_el import NodeGroupEl
 
 
 class NodeGrouper:

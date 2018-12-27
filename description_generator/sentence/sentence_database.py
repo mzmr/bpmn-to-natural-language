@@ -1,4 +1,4 @@
-from description_generator.pojo.sentence_def import SentenceDef
+from description_generator.sentence.pojo.sentence_def import SentenceDef
 from description_generator.sentence.inflection_params import InflectionParams
 
 
@@ -59,16 +59,28 @@ class SentenceDatabase:
     sentences_next_no_subject = [
         SentenceDef(
             None, None,
-            InflectionParams(), 1, InflectionParams(),
+            __infl_ger_nom_aff, 1, __infl_subst_gen,
             ('Na tym etapie następuje ', '.')),
         SentenceDef(
             None, None,
-            InflectionParams(), 1,  InflectionParams(),
+            __infl_inf_perf, 1, __infl_subst_acc,
             ('Na tym etapie należy ', '.')),
         SentenceDef(
             None, None,
-            InflectionParams(), 1, InflectionParams(),
+            __infl_fin_ter, 1, __infl_subst_acc,
             ('Następnie ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_fin_ter, 1, __infl_subst_acc,
+            ('Później ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_fin_ter, 1, __infl_subst_acc,
+            ('Potem ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Kolejnym jego zadaniem jest ', '.')),
     ]
 
     sentences_and_splitting = [

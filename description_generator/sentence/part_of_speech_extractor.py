@@ -1,7 +1,7 @@
 from morfeusz2 import Morfeusz
 
-from description_generator.consts import genders
-from description_generator.pojo.word_inflected import WordInflected
+from description_generator.sentence.consts import genders
+from description_generator.sentence.pojo.word_inflected import WordInflected
 from description_generator.sentence.inflection_params import InflectionParams
 
 
