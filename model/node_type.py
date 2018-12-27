@@ -7,3 +7,4 @@ class NodeType(Enum):
     task = 'task'
     end_event = 'endEvent'
     parallel_gateway = 'parallelGateway'
+    exclusive_gateway = 'exclusiveGateway'

@@ -31,6 +31,18 @@ class SentenceDatabase:
             ('Poniższy proces rozpoczyna się od ', ' przez ', '.'))
     ]
 
+    sentences_start_no_subject = [
+        SentenceDef(
+            None, None, __infl_inf_perf, 1, __infl_subst_acc,
+            ('Na początku trzeba', '.')),
+        SentenceDef(
+            None, None, __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Pierwszą czynnością, jaką należy wykonać, jest ', '.')),
+        SentenceDef(
+            None, None, __infl_ger_gen_aff, 1, __infl_subst_gen,
+            ('Poniższy proces rozpoczyna się od ', '.'))
+    ]
+
     sentences_next = [
         SentenceDef(
             __infl_subst_acc, 2, __infl_ger_nom_aff, 1, __infl_subst_gen,
@@ -53,10 +65,19 @@ class SentenceDatabase:
         SentenceDef(
             __infl_subst_gen, 1, __infl_inf_perf, 2, __infl_subst_acc,
             ('Kolejne zadanie należy do ', '. Musi on ', '.')),
+        SentenceDef(
+            __infl_subst_nom, 1, __infl_inf_perf, 2, __infl_subst_acc,
+            ('Następnie ', ' musi ', '.')),
+        SentenceDef(
+            __infl_subst_nom, 1, __infl_inf_perf, 2, __infl_subst_acc,
+            ('Później ', ' musi ', '.')),
+        SentenceDef(
+            __infl_subst_nom, 1, __infl_inf_perf, 2, __infl_subst_acc,
+            ('Potem ', ' musi ', '.')),
     ]
 
     # TODO: wykorzystać zdania bez podmiotu, gdy dany podmiot wykonuje więcej niż jedno zadanie pod rząd
-    sentences_next_no_subject = [
+    sentences_next_default_subject = [
         SentenceDef(
             None, None,
             __infl_ger_nom_aff, 1, __infl_subst_gen,
@@ -79,8 +100,47 @@ class SentenceDatabase:
             ('Potem ', '.')),
         SentenceDef(
             None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Następnie musi on ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Później musi on ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Potem musi on ', '.')),
+        SentenceDef(
+            None, None,
             __infl_ger_nom_aff, 1, __infl_subst_gen,
             ('Kolejnym jego zadaniem jest ', '.')),
+    ]
+
+    sentences_next_no_subject = [
+        SentenceDef(
+            None, None,
+            __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Na tym etapie następuje ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Na tym etapie należy ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Następnie trzeba ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_inf_perf, 1, __infl_subst_acc,
+            ('Później należy ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Potem następuje ', '.')),
+        SentenceDef(
+            None, None,
+            __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Kolejnym zadaniem jest ', '.')),
     ]
 
     sentences_and_splitting = [
@@ -91,11 +151,19 @@ class SentenceDatabase:
              ', opisane odpowiednio w punktach ', '.'))
     ]
 
+    sentences_and_splitting_no_subject = [
+            ('W tym momencie następuje podział pracy na równoległe ścieżki, opisane odpowiednio w punktach ', '.')
+    ]
+
     sentences_and_joining = [
         SentenceDef(
             InflectionParams('subst', 'nom'), 1,
             None, None, None,
             ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.'))
+    ]
+
+    sentences_and_joining_no_subject = [
+            ('By kontynuować, należy poczekać, aż punkty ', ' zostaną zakończone.')
     ]
 
     sentences_xor_splitting = [
@@ -125,4 +193,16 @@ class SentenceDatabase:
         SentenceDef(
             __infl_subst_acc, 2, __infl_ger_gen_aff, 1, __infl_subst_gen,
             ('Ten punkt zaczyna się od ', ' przez ', '.')),
+    ]
+
+    sentences_group_start_no_subject = [
+        SentenceDef(
+            None, None, __infl_ger_nom_aff, 1, __infl_subst_gen,
+            ('Pierwszym zadaniem w tym punkcie jest ', '.')),
+        SentenceDef(
+            None, None, __infl_inf_perf, 1, __infl_subst_acc,
+            ('W tym punkcie należy ', '.')),
+        SentenceDef(
+            None, None, __infl_ger_gen_aff, 1, __infl_subst_gen,
+            ('Ten punkt zaczyna się od ', '.')),
     ]

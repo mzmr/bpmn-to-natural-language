@@ -4,7 +4,9 @@ from description_generator.sentence.part_of_speech_extractor import PartOfSpeech
 from description_generator.sentence.pojo.extracted_predicate import ExtractedPredicate
 from description_generator.sentence.pojo.extracted_subject import ExtractedSubject
 from description_generator.sentence.inflection_params import InflectionParams
+from description_generator.sentence.pojo.sentence_def import SentenceDef
 from description_generator.sentence.sentence_database import SentenceDatabase
+from description_generator.sentence.subject_status import SubjectStatus
 from model.node import Node
 from utils import random_el
 
@@ -13,6 +15,7 @@ class SentenceGenerator:
 
     def __init__(self):
         self.morf = morfeusz2.Morfeusz()
+        self.start_was_empty = False
 
     def generate_intro_sentence(self, start_nodes: list) -> str:
         if len(start_nodes) == 1:
@@ -20,20 +23,49 @@ class SentenceGenerator:
         else:
             return ''
 
-    def generate_start_sentence(self, node: Node) -> str:
-        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_start)
-
-    def generate_next_sentence(self, node: Node, is_same_subject: bool) -> str:
-        if is_same_subject:
-            return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next_no_subject)
+    def generate_start_sentence(self, node: Node, subject_status: SubjectStatus) -> str:
+        if node.name:
+            if subject_status == SubjectStatus.none:
+                return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_start_no_subject)
+            else:
+                return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_start)
         else:
-            return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_next)
+            self.start_was_empty = True
+            return ''
 
-    def generate_and_splitting_sentence(self, successors: list, node_groups: list) -> str:
-        return self.__generate_split_or_join_sentence(successors, node_groups, SentenceDatabase.sentences_and_splitting)
+    def generate_next_sentence(self, node: Node, subject_status: SubjectStatus) -> str:
+        if self.start_was_empty:
+            self.start_was_empty = False
+            return self.generate_start_sentence(node, subject_status)
 
-    def generate_and_joining_sentence(self, predecessors: list, node_groups: list) -> str:
-        return self.__generate_split_or_join_sentence(predecessors, node_groups, SentenceDatabase.sentences_and_joining)
+        sentence_defs = None
+
+        if subject_status == SubjectStatus.new:
+            sentence_defs = SentenceDatabase.sentences_next
+        elif subject_status == SubjectStatus.same:
+            sentence_defs = SentenceDatabase.sentences_next_default_subject
+        elif subject_status == SubjectStatus.none:
+            sentence_defs = SentenceDatabase.sentences_next_no_subject
+
+        return self.__generate_sentence(node.lane.name, node.name, sentence_defs)
+
+    def generate_and_splitting_sentence(self, successors: list, node_groups: list,
+                                        subject_status: SubjectStatus) -> str:
+        if subject_status == SubjectStatus.none:
+            return self.__generate_split_or_join_sentence_no_subject(
+                successors, node_groups, SentenceDatabase.sentences_and_splitting_no_subject)
+        else:
+            return self.__generate_split_or_join_sentence(successors, node_groups,
+                                                          SentenceDatabase.sentences_and_splitting)
+
+    def generate_and_joining_sentence(self, predecessors: list, node_groups: list,
+                                      subject_status: SubjectStatus) -> str:
+        if subject_status == SubjectStatus.none:
+            return self.__generate_split_or_join_sentence_no_subject(
+                predecessors, node_groups, SentenceDatabase.sentences_and_joining_no_subject)
+        else:
+            return self.__generate_split_or_join_sentence(predecessors, node_groups,
+                                                          SentenceDatabase.sentences_and_joining)
 
     def generate_xor_splitting_sentence(self, successors: list, node_groups: list) -> str:
         return ''
@@ -62,48 +94,23 @@ class SentenceGenerator:
 
         raise Exception()
 
-    def generate_group_start_sentence(self, node: Node):
-        return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_group_start)
+    def generate_group_start_sentence(self, node: Node, subject_status: SubjectStatus):
+        if subject_status == SubjectStatus.none:
+            return self.__generate_sentence(node.lane.name, node.name,
+                                            SentenceDatabase.sentences_group_start_no_subject)
+        else:
+            return self.__generate_sentence(node.lane.name, node.name, SentenceDatabase.sentences_group_start)
 
     def __generate_sentence(self, lane_name: str, task_text: str, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
+        if not lane_name:
+            return self.__generate_sentence_no_subject(task_text, sentence_def)
+
         if sentence_def.subject_infl is None:
-            subject_inflected = None
-            subject_extracted = None
+            return self.__generate_sentence_no_subject(task_text, sentence_def)
         else:
-            subject_extracted = self.__extract_subject(lane_name)
-            subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
-                                                                  subject_extracted.subject.params,
-                                                                  sentence_def.subject_infl)
-
-        predicate_extracted = self.__extract_predicate(task_text)
-        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
-                                                                predicate_extracted.predicate.params,
-                                                                sentence_def.predicate_infl)
-        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
-                                                             predicate_extracted.object.params,
-                                                             sentence_def.object_infl)
-
-        result = list()
-        result.append(sentence_def.text_list[0])
-
-        if subject_inflected and subject_extracted:
-            if sentence_def.subject_order == 1:
-                self.__append_subject(subject_inflected, subject_extracted, result)
-                result.append(sentence_def.text_list[1])
-                self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
-            else:
-                self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
-                result.append(sentence_def.text_list[1])
-                self.__append_subject(subject_inflected, subject_extracted, result)
-
-            result.append(sentence_def.text_list[2])
-        else:
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
-            result.append(sentence_def.text_list[1])
-
-        return ''.join(result)
+            return self.__generate_sentece_regular(lane_name, task_text, sentence_def)
 
     def __extract_subject(self, subject: str) -> ExtractedSubject:
         extractor = PartOfSpeechExtractor(subject.lower(), self.morf)
@@ -187,8 +194,9 @@ class SentenceGenerator:
     @staticmethod
     def __find_successor_group_idx(successor_idx: int, node_groups: list) -> int:
         for group_idx, group in enumerate(node_groups):
-            if successor_idx == group[0].node_idx:
-                return group_idx
+            for el in group:
+                if successor_idx == el.node_idx:
+                    return group_idx
 
         raise Exception(f'Couldn\'t find group for node with id {successor_idx}')
 
@@ -225,6 +233,16 @@ class SentenceGenerator:
         sentence.append(sentence_def.text_list[2])
         return ''.join(sentence)
 
+    def __generate_split_or_join_sentence_no_subject(self, nodes: list, node_groups: list, sentence_defs: list) -> str:
+        sentence_def = random_el(sentence_defs)
+
+        sentence = list()
+        sentence.append(sentence_def[0])
+        succ_ids = [s[0] for s in nodes]
+        sentence.append(SentenceGenerator.__list_points(succ_ids, node_groups))
+        sentence.append(sentence_def[1])
+        return ''.join(sentence)
+
     def __list_inflected_subjects(self, subjects: list, subject_infl: InflectionParams) -> str:
         infl_subs = list()
 
@@ -257,3 +275,50 @@ class SentenceGenerator:
             return f'{word} {conj} '
         else:
             return word
+
+    def __generate_sentence_no_subject(self, task_text: str, sentence_def: SentenceDef):
+        predicate_extracted = self.__extract_predicate(task_text)
+        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
+                                                                predicate_extracted.predicate.params,
+                                                                sentence_def.predicate_infl)
+        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
+                                                             predicate_extracted.object.params,
+                                                             sentence_def.object_infl)
+
+        result = list()
+        result.append(sentence_def.text_list[0])
+
+        self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+        result.append(sentence_def.text_list[1])
+
+        return ''.join(result)
+
+    def __generate_sentece_regular(self, lane_name: str, task_text: str, sentence_def: SentenceDef):
+        subject_extracted = self.__extract_subject(lane_name)
+        subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
+                                                              subject_extracted.subject.params,
+                                                              sentence_def.subject_infl)
+
+        predicate_extracted = self.__extract_predicate(task_text)
+        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
+                                                                predicate_extracted.predicate.params,
+                                                                sentence_def.predicate_infl)
+        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
+                                                             predicate_extracted.object.params,
+                                                             sentence_def.object_infl)
+
+        result = list()
+        result.append(sentence_def.text_list[0])
+
+        if sentence_def.subject_order == 1:
+            self.__append_subject(subject_inflected, subject_extracted, result)
+            result.append(sentence_def.text_list[1])
+            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+        else:
+            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+            result.append(sentence_def.text_list[1])
+            self.__append_subject(subject_inflected, subject_extracted, result)
+
+        result.append(sentence_def.text_list[2])
+
+        return ''.join(result)
