@@ -34,6 +34,16 @@ class PartOfSpeechExtractor:
     def find_objects(self) -> list:
         return self.__find_forms(InflectionParams('subst', 'acc'))
 
+    def find_participles(self) -> list:
+        # szukane:
+        # usuń >> zabronione << -- przemioty -- ppas:pl:nom.acc.voc:m2.m3.f.n:perf:aff
+        return self.__find_forms(InflectionParams('ppas', 'acc'))
+
+    def find_obj_adjectives(self) -> list:
+        # szukane:
+        # wydrukuj kwity >> bagażowe << -- adj:pl:acc:m2.m3.f.n:pos
+        return self.__find_forms(InflectionParams('adj', 'acc'))
+
     @staticmethod
     def find_gender(params: list) -> str:
         for group_name, subgroup_names in genders.items():
@@ -60,9 +70,16 @@ class PartOfSpeechExtractor:
     def __find_forms(self, params: InflectionParams) -> list:
         forms_found = list()
         nums_to_remove = list()
+        prep_appeared = False
 
         for an in self.analysis:
             word_type = PartOfSpeechExtractor.__get_word_type(an)
+
+            if 'prep' in word_type:
+                prep_appeared = True
+
+            if prep_appeared and 'subst' in params.infl_params:
+                break
 
             if PartOfSpeechExtractor.__get_word_number(an) in nums_to_remove:
                 continue

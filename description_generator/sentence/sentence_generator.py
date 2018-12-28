@@ -71,7 +71,7 @@ class SentenceGenerator:
                                                      SentenceDatabase.sentences_xor_splitting)
 
     def generate_xor_joining_sentence(self, predecessors: list, node_groups: list) -> str:
-        return ''
+        return random_el(SentenceDatabase.sentences_xor_joining)
 
     def generate_or_splitting_sentence(self, successors: list, node_groups: list) -> str:
         return ''

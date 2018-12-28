@@ -34,7 +34,7 @@ class SentenceDatabase:
     sentences_start_no_subject = [
         SentenceDef(
             None, None, __infl_inf_perf, 1, __infl_subst_acc,
-            ('Na początku trzeba', '.')),
+            ('Na początku trzeba ', '.')),
         SentenceDef(
             None, None, __infl_ger_nom_aff, 1, __infl_subst_gen,
             ('Pierwszą czynnością, jaką należy wykonać, jest ', '.')),
@@ -168,7 +168,11 @@ class SentenceDatabase:
 
     sentences_xor_splitting = [
         (  # np: Kawa czy herbata? Jeśli X
-         ', to przejdź do punktu ', '.', ' Wybierz tylko jedną z odpowiedzi.')
+         ', to należy przejść do punktu ', '.', ' Można wybrać tylko jedną z odpowiedzi.')
+    ]
+
+    sentences_xor_joining = [
+        'Po zakończeniu wcześniej wybranej ścieżki, proces jest tu kontynuowany.'
     ]
 
     sentences_end = [

@@ -7,7 +7,7 @@ class InflectionParams:
 
     def __init__(self, *args: str):
         self.infl_params = list(args)
-        self.__extract_genders(self.infl_params)
+        # self.__extract_genders(self.infl_params)
 
     def clone(self):
         new_obj = InflectionParams()
@@ -23,7 +23,10 @@ class InflectionParams:
                 not any(g in their_genders for g in my_genders):
             return False
 
-        return set(self.infl_params).issubset(their_params)
+        matches = set(self.infl_params).issubset(their_params)
+        self.infl_params.extend(my_genders)
+        their_params.extend(their_genders)
+        return matches
 
     def add_param(self, param: str) -> None:
         if (param in ['sg', 'pl']) and 'inf' in self.infl_params:
@@ -39,6 +42,12 @@ class InflectionParams:
     @staticmethod
     def inflection_str_to_list(inflection: str) -> list:
         return re.split(r'[:.]', inflection)
+
+    def get_grammatical_case(self):
+        cases = ['nom', 'gen', 'dat', 'acc', 'inst', 'loc', 'voc']
+        for c in cases:
+            if c in self.infl_params:
+                return c
 
     @staticmethod
     def __extract_genders(params: list) -> list:
