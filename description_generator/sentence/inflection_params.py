@@ -8,7 +8,6 @@ class InflectionParams:
     def __init__(self, *args: str):
         self.infl_params = list(args)
         self.__extract_genders(self.infl_params)
-        # TODO: tutaj nie powinno się usuwać płci z listy parametrów, a ta metoda powyżej to robi :/
 
     def clone(self):
         new_obj = InflectionParams()

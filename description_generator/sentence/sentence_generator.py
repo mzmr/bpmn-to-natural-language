@@ -1,12 +1,9 @@
 import morfeusz2
 
-from description_generator.sentence.part_of_speech_extractor import PartOfSpeechExtractor
-from description_generator.sentence.pojo.extracted_predicate import ExtractedPredicate
-from description_generator.sentence.pojo.extracted_subject import ExtractedSubject
-from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.pojo.sentence_def import SentenceDef
 from description_generator.sentence.predicate_inflector import PredicateInflector
 from description_generator.sentence.sentence_database import SentenceDatabase
+from description_generator.sentence.subject_inflector import SubjectInflector
 from description_generator.sentence.subject_status import SubjectStatus
 from model.node import Node
 from utils import random_el
@@ -70,7 +67,8 @@ class SentenceGenerator:
 
     def generate_xor_splitting_sentence(self, node: Node, successors: list, node_groups: list,
                                         subject_status: SubjectStatus) -> str:
-        return self.__generate_split_choice_sentence(node, successors, node_groups, SentenceDatabase.sentences_xor_splitting)
+        return self.__generate_split_choice_sentence(node, successors, node_groups,
+                                                     SentenceDatabase.sentences_xor_splitting)
 
     def generate_xor_joining_sentence(self, predecessors: list, node_groups: list) -> str:
         return ''
@@ -114,70 +112,6 @@ class SentenceGenerator:
         else:
             return self.__generate_sentece_regular(lane_name, task_text, sentence_def)
 
-    def __extract_subject(self, subject: str) -> ExtractedSubject:
-        extractor = PartOfSpeechExtractor(subject.lower(), self.morf)
-
-        subject_forms = extractor.find_subjects()
-        if subject_forms:
-            sub = subject_forms[0]
-        else:
-            raise Exception(f'Could not find subject in "{subject}".')
-
-        adj = None
-        adjective_forms = extractor.find_adjectives(sub.params)
-        if adjective_forms:
-            adj = adjective_forms[0]
-
-        gen = None
-        genitive_forms = extractor.find_genitives()
-        if genitive_forms:
-            gen = genitive_forms[0]
-
-        return ExtractedSubject(sub, adj, gen)
-
-    def __extract_predicate(self, task_text: str) -> ExtractedPredicate:
-        extractor = PartOfSpeechExtractor(task_text, self.morf)
-
-        predicate_forms = extractor.find_predicates()
-        if predicate_forms:
-            pre = predicate_forms[0]
-        else:
-            raise Exception(f'Could not find predicate in sentence: "{task_text}".')
-
-        obj = None
-        object_forms = extractor.find_objects()
-        if object_forms:
-            obj = object_forms[0]
-
-        splitted_task_text = task_text.split(pre.inflected, 1)
-        splitted_second = splitted_task_text[1].split(obj.inflected, 1)
-        splitted = [splitted_task_text[0], splitted_second[0], splitted_second[1]]
-        return ExtractedPredicate(pre, obj, splitted)
-
-    def __inflect(self, base_word: str, inflection_params: InflectionParams) -> str:
-        words = self.morf.generate(base_word)
-
-        if len(words) == 0:
-            raise ValueError(f'Unknown word: {base_word}')
-
-        for word_details in words:
-            if inflection_params.matches(word_details[2]):
-                return word_details[0]
-
-        raise Exception(f'Word "{base_word}" of one of types "{inflection_params.infl_params}" cannot be found.')
-
-    @staticmethod
-    def __append_subject(subject_inflected: str, subject: ExtractedSubject, result: list) -> None:
-        result.append(subject_inflected)
-
-        if subject.adjective is not None:
-            result.append(' ')
-            result.append(subject.adjective.inflected)
-
-        if subject.genitive is not None:
-            result.append(' ')
-            result.append(subject.genitive.inflected)
-
     @staticmethod
     def __find_successor_group_idx(successor_idx: int, node_groups: list) -> int:
         for group_idx, group in enumerate(node_groups):
@@ -187,33 +121,13 @@ class SentenceGenerator:
 
         raise Exception(f'Couldn\'t find group for node with id {successor_idx}')
 
-    def __combine_params_and_inflect(self, basic_word: str, word_infl_par: str,
-                                     basic_infl_par: InflectionParams) -> str:
-        infl_params = SentenceGenerator.__create_target_infl_params(word_infl_par, basic_infl_par)
-        word_inflected = self.__inflect(basic_word, infl_params)
-        return word_inflected
-
-    @staticmethod
-    def __create_target_infl_params(src_params: str, dst_params_basic: InflectionParams) -> InflectionParams:
-        src_params_list = InflectionParams.inflection_str_to_list(src_params)
-        gender = PartOfSpeechExtractor.find_gender(src_params_list)
-        sg_or_pl = PartOfSpeechExtractor.find_sg_or_pl(src_params_list)
-        dst_params = dst_params_basic.clone()
-
-        if gender:
-            dst_params.add_params(gender, sg_or_pl)
-        else:
-            dst_params.add_param(sg_or_pl)
-
-        return dst_params
-
     def __generate_split_or_join_sentence(self, nodes: list, node_groups: list, sentence_defs: list) -> str:
         sentence_def = random_el(sentence_defs)
 
         sentence = list()
         sentence.append(sentence_def.text_list[0])
         nodes_subjects = [s[1].lane.name for s in nodes]
-        sentence.append(self.__list_inflected_subjects(nodes_subjects, sentence_def.subject_infl))
+        sentence.append(self.__list_inflected_subjects(nodes_subjects, sentence_def))
         sentence.append(sentence_def.text_list[1])
         succ_ids = [s[0] for s in nodes]
         sentence.append(SentenceGenerator.__list_points(succ_ids, node_groups))
@@ -230,15 +144,12 @@ class SentenceGenerator:
         sentence.append(sentence_def[1])
         return ''.join(sentence)
 
-    def __list_inflected_subjects(self, subjects: list, subject_infl: InflectionParams) -> str:
+    def __list_inflected_subjects(self, subjects: list, sentence_def: SentenceDef) -> str:
         infl_subs = list()
 
         for idx, subject in enumerate(subjects):
-            subject_extracted = self.__extract_subject(subject)
-            subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
-                                                                  subject_extracted.subject.params,
-                                                                  subject_infl)
-            infl_subs.append(SentenceGenerator.__word_with_comma(subject_inflected, idx, subjects))
+            sub_infl = SubjectInflector(self.morf).inflect(subject, sentence_def)
+            infl_subs.append(SentenceGenerator.__word_with_comma(sub_infl, idx, subjects))
 
         return ''.join(infl_subs)
 
@@ -273,24 +184,20 @@ class SentenceGenerator:
         return ''.join(result)
 
     def __generate_sentece_regular(self, lane_name: str, task_text: str, sentence_def: SentenceDef):
-        subject_extracted = self.__extract_subject(lane_name)
-        subject_inflected = self.__combine_params_and_inflect(subject_extracted.subject.basic,
-                                                              subject_extracted.subject.params,
-                                                              sentence_def.subject_infl)
-
+        sub = SubjectInflector(self.morf).inflect(lane_name, sentence_def)
         pred = PredicateInflector(self.morf).inflect(task_text, sentence_def)
 
         result = list()
         result.append(sentence_def.text_list[0])
 
         if sentence_def.subject_order == 1:
-            self.__append_subject(subject_inflected, subject_extracted, result)
+            result.append(sub)
             result.append(sentence_def.text_list[1])
             result.append(pred)
         else:
             result.append(pred)
             result.append(sentence_def.text_list[1])
-            self.__append_subject(subject_inflected, subject_extracted, result)
+            result.append(sub)
 
         result.append(sentence_def.text_list[2])
 
