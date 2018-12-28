@@ -64,6 +64,9 @@ class PartOfSpeechExtractor:
         for an in self.analysis:
             word_type = PartOfSpeechExtractor.__get_word_type(an)
 
+            if PartOfSpeechExtractor.__get_word_number(an) in nums_to_remove:
+                continue
+
             if params.matches(word_type):
                 basic = PartOfSpeechExtractor.__get_basic_word_form(an)
                 inflected = PartOfSpeechExtractor.__get_inflected_word_form(an)

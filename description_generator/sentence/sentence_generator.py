@@ -5,6 +5,7 @@ from description_generator.sentence.pojo.extracted_predicate import ExtractedPre
 from description_generator.sentence.pojo.extracted_subject import ExtractedSubject
 from description_generator.sentence.inflection_params import InflectionParams
 from description_generator.sentence.pojo.sentence_def import SentenceDef
+from description_generator.sentence.predicate_inflector import PredicateInflector
 from description_generator.sentence.sentence_database import SentenceDatabase
 from description_generator.sentence.subject_status import SubjectStatus
 from model.node import Node
@@ -178,21 +179,6 @@ class SentenceGenerator:
             result.append(subject.genitive.inflected)
 
     @staticmethod
-    def __append_predicate(pred_infl: str, obj_infl: str, predicate: ExtractedPredicate, result: list) -> None:
-        if predicate.sentence_parts[0]:
-            result.append(predicate.sentence_parts[0])
-
-        result.append(pred_infl)
-
-        if predicate.sentence_parts[1]:
-            result.append(predicate.sentence_parts[1])
-
-        result.append(obj_infl)
-
-        if predicate.sentence_parts[2]:
-            result.append(predicate.sentence_parts[2])
-
-    @staticmethod
     def __find_successor_group_idx(successor_idx: int, node_groups: list) -> int:
         for group_idx, group in enumerate(node_groups):
             for el in group:
@@ -278,18 +264,10 @@ class SentenceGenerator:
             return word
 
     def __generate_sentence_no_subject(self, task_text: str, sentence_def: SentenceDef):
-        predicate_extracted = self.__extract_predicate(task_text)
-        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
-                                                                predicate_extracted.predicate.params,
-                                                                sentence_def.predicate_infl)
-        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
-                                                             predicate_extracted.object.params,
-                                                             sentence_def.object_infl)
-
+        pred = PredicateInflector(self.morf).inflect(task_text, sentence_def)
         result = list()
         result.append(sentence_def.text_list[0])
-
-        self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+        result.append(pred)
         result.append(sentence_def.text_list[1])
 
         return ''.join(result)
@@ -300,13 +278,7 @@ class SentenceGenerator:
                                                               subject_extracted.subject.params,
                                                               sentence_def.subject_infl)
 
-        predicate_extracted = self.__extract_predicate(task_text)
-        predicate_inflected = self.__combine_params_and_inflect(predicate_extracted.predicate.basic,
-                                                                predicate_extracted.predicate.params,
-                                                                sentence_def.predicate_infl)
-        object_inflected = self.__combine_params_and_inflect(predicate_extracted.object.basic,
-                                                             predicate_extracted.object.params,
-                                                             sentence_def.object_infl)
+        pred = PredicateInflector(self.morf).inflect(task_text, sentence_def)
 
         result = list()
         result.append(sentence_def.text_list[0])
@@ -314,9 +286,9 @@ class SentenceGenerator:
         if sentence_def.subject_order == 1:
             self.__append_subject(subject_inflected, subject_extracted, result)
             result.append(sentence_def.text_list[1])
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+            result.append(pred)
         else:
-            self.__append_predicate(predicate_inflected, object_inflected, predicate_extracted, result)
+            result.append(pred)
             result.append(sentence_def.text_list[1])
             self.__append_subject(subject_inflected, subject_extracted, result)
 
