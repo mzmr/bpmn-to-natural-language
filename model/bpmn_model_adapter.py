@@ -4,6 +4,9 @@ import os
 from model.node_type import NodeType
 from model.node import Node
 from collections import namedtuple
+
+from utils import append_if_not_in
+
 Lane = namedtuple('Lane', 'id name')
 Process = namedtuple('Process', 'id name')
 
@@ -28,12 +31,11 @@ class BPMNModelAdapter:
 
             node_src = self.__add_if_not_exist(node_src_id)
             node_dst = self.__add_if_not_exist(node_dst_id)
+            outgoing_arrow_text = flow['name']
 
-            if node_dst not in node_src.successors:
-                node_src.successors.append(node_dst)
-
-            if node_src not in node_dst.predecessors:
-                node_dst.predecessors.append(node_src)
+            append_if_not_in(node_dst, node_src.successors)
+            append_if_not_in(node_src, node_dst.predecessors)
+            append_if_not_in((outgoing_arrow_text, node_dst), node_src.arrows_outgoing)
 
     def __complete_node_params(self, nodes: dict) -> None:
         for n in nodes.values():

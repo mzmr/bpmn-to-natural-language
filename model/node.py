@@ -8,3 +8,4 @@ class Node:
         self.lane = ''
         self.predecessors = []
         self.successors = []
+        self.arrows_outgoing = []

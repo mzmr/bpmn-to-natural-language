@@ -67,8 +67,9 @@ class SentenceGenerator:
             return self.__generate_split_or_join_sentence(predecessors, node_groups,
                                                           SentenceDatabase.sentences_and_joining)
 
-    def generate_xor_splitting_sentence(self, successors: list, node_groups: list) -> str:
-        return ''
+    def generate_xor_splitting_sentence(self, node: Node, successors: list, node_groups: list,
+                                        subject_status: SubjectStatus) -> str:
+        return self.__generate_split_choice_sentence(node, successors, node_groups, SentenceDatabase.sentences_xor_splitting)
 
     def generate_xor_joining_sentence(self, predecessors: list, node_groups: list) -> str:
         return ''
@@ -322,3 +323,41 @@ class SentenceGenerator:
         result.append(sentence_def.text_list[2])
 
         return ''.join(result)
+
+    def __generate_split_choice_sentence(self, node: Node, successors: list, node_groups: list, sentence_defs: list):
+        sentence_def = random_el(sentence_defs)
+
+        sentence = list()
+        question = SentenceGenerator.__prepare_question(node.name)
+        sentence.append(question)
+
+        for arr_text, successor in node.arrows_outgoing:
+            sentence.append(' Jeśli ')
+            sentence.append(arr_text.lower())
+            sentence.append(sentence_def[0])
+
+            succ_idx = None
+            for idx, s in successors:
+                if s == successor:
+                    succ_idx = idx
+                    break
+            if succ_idx is None:
+                raise Exception()
+
+            group_idx = SentenceGenerator.__find_successor_group_idx(succ_idx, node_groups)
+
+            sentence.append(str(group_idx + 1))
+            sentence.append(sentence_def[1])
+
+        sentence.append(sentence_def[2])
+
+        return ''.join(sentence)
+
+    @staticmethod
+    def __prepare_question(basic_question: str) -> str:
+        if basic_question.endswith('?'):
+            question = basic_question
+        else:
+            question = basic_question + '?'
+
+        return question.capitalize()

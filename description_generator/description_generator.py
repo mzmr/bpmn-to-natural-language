@@ -42,7 +42,7 @@ class DescriptionGenerator:
 
         if node.type == NodeType.exclusive_gateway:
             if group_el.status == NodeGroupElStatus.splitting:
-                return self.generator.generate_xor_splitting_sentence(successors, node_groups)
+                return self.generator.generate_xor_splitting_sentence(node, successors, node_groups, subject_status)
 
             if group_el.status == NodeGroupElStatus.normal:
                 return self.generator.generate_xor_joining_sentence(predecessors, node_groups)

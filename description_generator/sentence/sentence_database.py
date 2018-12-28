@@ -167,9 +167,8 @@ class SentenceDatabase:
     ]
 
     sentences_xor_splitting = [
-        ('Teraz należy wybrać jedną z dostępnych ścieżek. ',  # <-- tutaj pytanie z gatewaya -->
-         #  jeśli X
-         ', to przejdź do punktu ', '.')
+        (  # np: Kawa czy herbata? Jeśli X
+         ', to przejdź do punktu ', '.', ' Wybierz tylko jedną z odpowiedzi.')
     ]
 
     sentences_end = [
