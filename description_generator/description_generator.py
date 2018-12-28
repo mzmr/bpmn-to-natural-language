@@ -29,7 +29,7 @@ class DescriptionGenerator:
             return self.generator.generate_intro_sentence([s[1] for s in successors])
 
         if node.type == NodeType.end_event:
-            return self.generator.generate_end_sentence()
+            return self.generator.generate_end_sentence(node)
 
         if node.type == NodeType.parallel_gateway:
             if group_el.status == NodeGroupElStatus.splitting:
@@ -42,10 +42,29 @@ class DescriptionGenerator:
 
         if node.type == NodeType.exclusive_gateway:
             if group_el.status == NodeGroupElStatus.splitting:
-                return self.generator.generate_xor_splitting_sentence(node, successors, node_groups, subject_status)
+                return self.generator.generate_xor_splitting_sentence(node, successors, node_groups)
 
             if group_el.status == NodeGroupElStatus.normal:
-                return self.generator.generate_xor_joining_sentence(predecessors, node_groups)
+                return self.generator.generate_xor_joining_sentence()
+
+            if group_el.status == NodeGroupElStatus.joining:
+                sentence = self.generator.generate_xor_joining_sentence()
+                next_group_sentence = self.generator.generate_group_end_sentence(successors, node_groups)
+                return f'{sentence} {next_group_sentence}'
+
+            raise Exception()
+
+        if node.type == NodeType.inclusive_gateway:
+            if group_el.status == NodeGroupElStatus.splitting:
+                return self.generator.generate_or_splitting_sentence(node, successors, node_groups)
+
+            if group_el.status == NodeGroupElStatus.normal:
+                return self.generator.generate_or_joining_sentence()
+
+            if group_el.status == NodeGroupElStatus.joining:
+                sentence = self.generator.generate_or_joining_sentence()
+                next_group_sentence = self.generator.generate_group_end_sentence(successors, node_groups)
+                return f'{sentence} {next_group_sentence}'
 
             raise Exception()
 
@@ -73,7 +92,7 @@ class DescriptionGenerator:
             else:
                 return self.generator.generate_next_sentence(node, subject_status)
 
-        raise Exception()
+        raise Exception(f'Node of type {node.type} doesn\'t fulfill any condition.')
 
     @staticmethod
     def __determine_subject_status(node: Node, predecessors: list) -> SubjectStatus:

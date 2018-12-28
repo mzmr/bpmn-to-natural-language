@@ -76,7 +76,6 @@ class SentenceDatabase:
             ('Potem ', ' musi ', '.')),
     ]
 
-    # TODO: wykorzystać zdania bez podmiotu, gdy dany podmiot wykonuje więcej niż jedno zadanie pod rząd
     sentences_next_default_subject = [
         SentenceDef(
             None, None,
@@ -168,11 +167,19 @@ class SentenceDatabase:
 
     sentences_xor_splitting = [
         (  # np: Kawa czy herbata? Jeśli X
-         ', to należy przejść do punktu ', '.', ' Można wybrać tylko jedną z odpowiedzi.')
+         ', to należy przejść do punktu ', '.', 'Można wybrać tylko jedną z odpowiedzi.')
     ]
 
     sentences_xor_joining = [
         'Po zakończeniu wcześniej wybranej ścieżki, proces jest tu kontynuowany.'
+    ]
+
+    sentences_or_splitting = [
+        (', to należy przejść do punktu ', '.', 'Można wybrać jedną lub więcej odpowiedzi.')
+    ]
+
+    sentences_or_joining = [
+        'Po zakończeniu wcześniej wybranych ścieżek, proces jest kontynuowany w tym punkcie.'
     ]
 
     sentences_end = [

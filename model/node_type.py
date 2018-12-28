@@ -8,3 +8,4 @@ class NodeType(Enum):
     end_event = 'endEvent'
     parallel_gateway = 'parallelGateway'
     exclusive_gateway = 'exclusiveGateway'
+    inclusive_gateway = 'inclusiveGateway'

@@ -16,50 +16,37 @@ class PredicateInflector(Inflector):
 
         predicate_forms = extractor.find_predicates()
         if not predicate_forms:
-            raise Exception(f'Could not find predicate in sentence: "{predicate_text}".')
+            raise ValueError(f'Could not find predicate in sentence: "{predicate_text}".')
 
         object_forms = extractor.find_objects()
         participle_forms = extractor.find_participles()
         obj_adjective_forms = extractor.find_obj_adjectives()
 
-        # docelowe:
-        # wydrukowania kwitów >> bagażowych << -- adj:pl:gen:m1.m2.m3.f.n:pos
-        # usunięcie >> zabronionych << przedmiotów -- ppas:pl:gen.loc:m1.m2.m3.f.n:perf:aff
-
-        pred_infl = list()
-        for pred in predicate_forms:
-            predicate_inflected = self.combine_params_and_inflect(pred.basic, pred.params, sentence_def.predicate_infl)
-            pred_infl.append((pred.inflected, predicate_inflected))
-
-        part_infl = list()
-        for part in participle_forms:
-            participle_inflected = self.combine_params_and_inflect(
-                part.basic, part.params, InflectionParams('ppas', sentence_def.object_infl.get_grammatical_case()))
-            part_infl.append((part.inflected, participle_inflected))
-
-        obj_adj_infl = list()
-        for adj in obj_adjective_forms:
-            obj_adjective_inflected = self.combine_params_and_inflect(
-                adj.basic, adj.params, InflectionParams('adj', sentence_def.object_infl.get_grammatical_case()))
-            obj_adj_infl.append((adj.inflected, obj_adjective_inflected))
-
-        obj_infl = list()
-        for obj in object_forms:
-            object_inflected = self.combine_params_and_inflect(obj.basic, obj.params, sentence_def.object_infl)
-            obj_infl.append((obj.inflected, object_inflected))
+        pred_infl = self.__inflect_forms(predicate_forms, sentence_def.predicate_infl)
+        part_params = InflectionParams('ppas', sentence_def.object_infl.get_grammatical_case())
+        part_infl = self.__inflect_forms(participle_forms, part_params)
+        obj_adj_params = InflectionParams('adj', sentence_def.object_infl.get_grammatical_case())
+        obj_adj_infl = self.__inflect_forms(obj_adjective_forms, obj_adj_params)
+        obj_infl = self.__inflect_forms(object_forms, sentence_def.object_infl)
 
         result = str(predicate_text)
-
-        for p in pred_infl:
-            result = result.replace(p[0], p[1], 1)
-
-        for p in part_infl:
-            result = result.replace(p[0], p[1], 1)
-
-        for a in obj_adj_infl:
-            result = result.replace(a[0], a[1], 1)
-
-        for o in obj_infl:
-            result = result.replace(o[0], o[1], 1)
+        result = PredicateInflector.__replace_every(result, pred_infl)
+        result = PredicateInflector.__replace_every(result, part_infl)
+        result = PredicateInflector.__replace_every(result, obj_adj_infl)
+        result = PredicateInflector.__replace_every(result, obj_infl)
 
         return result
+
+    def __inflect_forms(self, forms: list, infl_params: InflectionParams) -> list:
+        infl_list = list()
+        for f in forms:
+            f_inflected = self.combine_params_and_inflect(f.basic, f.params, infl_params)
+            infl_list.append((f.inflected, f_inflected))
+        return infl_list
+
+    @staticmethod
+    def __replace_every(text: str, inflected: list):
+        tmp = str(text)
+        for inf in inflected:
+            tmp = tmp.replace(inf[0], inf[1], 1)
+        return tmp
