@@ -7,7 +7,6 @@ class InflectionParams:
 
     def __init__(self, *args: str):
         self.infl_params = list(args)
-        # self.__extract_genders(self.infl_params)
 
     def clone(self):
         new_obj = InflectionParams()

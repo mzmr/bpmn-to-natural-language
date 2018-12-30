@@ -47,6 +47,15 @@ class BPMNModelAdapter:
         for p in process_elements.values():
             process = Process(p['id'], p['name'])
 
+            if 'laneSet' not in p:
+                lane = Lane('', '')
+
+                for n in self.nodes.values():
+                    n.lane = lane
+                    n.process = process
+
+                continue
+
             for l in p['laneSet']['lanes'].values():
                 lane = Lane(l['id'], l['name'])
 

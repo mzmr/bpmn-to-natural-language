@@ -38,6 +38,11 @@ class DescriptionGenerator:
             if group_el.status == NodeGroupElStatus.normal:
                 return self.generator.generate_and_joining_sentence(predecessors, node_groups, subject_status)
 
+            if group_el.status == NodeGroupElStatus.joining:
+                sentence = self.generator.generate_and_joining_sentence(predecessors, node_groups, subject_status)
+                next_group_sentence = self.generator.generate_group_end_sentence(successors, node_groups)
+                return f'{sentence} {next_group_sentence}'
+
             raise Exception()
 
         if node.type == NodeType.exclusive_gateway:

@@ -9,8 +9,8 @@ class Inflector:
     def __init__(self, morfeusz: Morfeusz):
         self.morf = morfeusz
 
-    def combine_params_and_inflect(self, basic_word: str, word_infl_par: str,
-                                     basic_infl_par: InflectionParams) -> str:
+    def inflect_using_params(self, basic_word: str, word_infl_par: str,
+                             basic_infl_par: InflectionParams) -> str:
         infl_params = Inflector.__create_target_infl_params(word_infl_par, basic_infl_par)
         word_inflected = self.__inflect(basic_word, infl_params)
         return word_inflected

@@ -29,7 +29,7 @@ class SubjectInflector(Inflector):
         if genitive_forms:
             gen = genitive_forms[0]
 
-        sub_infl = self.combine_params_and_inflect(sub.basic, sub.params, sentence_def.subject_infl)
+        sub_infl = self.inflect_using_params(sub.basic, sub.params, sentence_def.subject_infl)
 
         if adj is None:
             adj_infl = ''

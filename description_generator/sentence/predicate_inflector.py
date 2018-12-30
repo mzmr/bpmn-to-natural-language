@@ -40,7 +40,7 @@ class PredicateInflector(Inflector):
     def __inflect_forms(self, forms: list, infl_params: InflectionParams) -> list:
         infl_list = list()
         for f in forms:
-            f_inflected = self.combine_params_and_inflect(f.basic, f.params, infl_params)
+            f_inflected = self.inflect_using_params(f.basic, f.params, infl_params)
             infl_list.append((f.inflected, f_inflected))
         return infl_list
 

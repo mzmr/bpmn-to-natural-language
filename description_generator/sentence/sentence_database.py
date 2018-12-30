@@ -151,7 +151,7 @@ class SentenceDatabase:
     ]
 
     sentences_and_splitting_no_subject = [
-            ('W tym momencie następuje podział pracy na równoległe ścieżki, opisane odpowiednio w punktach ', '.')
+            ('W tym momencie następuje podział pracy na równoległe ścieżki opisane w punktach ', '.')
     ]
 
     sentences_and_joining = [

@@ -13,9 +13,11 @@
 import morfeusz2
 morf = morfeusz2.Morfeusz()
 
+x = morf.analyse('Czy mam teraz piec ciasto?')
+
 print(morf.dict_id())
 
-for text in (u'Później kierowca odbierze zapłatę.', u'Kolejny krok, to dostarczenie towaru przez kierowcę.', u'Samochody jadą.', u'Na początku kierowca musi przyjąć mandat'):
+for text in (u'Zbierz pieniądze za opłaty.', u'Usuń zabronione przedmioty.', u'Samochody jadą.', u'Na początku kierowca musi przyjąć mandat'):
     print(text)
     analysis = morf.analyse(text)
 
@@ -41,7 +43,7 @@ from translator import Translator
 # ELEMENTY W TAGU <PROCESS> MUSZĄ BYĆ W KOLEJNOŚCI, KTÓRĄ WSKAZUJĄ STRZAŁKI,
 # INACZEJ STRZAŁKI ZOSTANĄ NARYSOWANE ODWROTNIE
 
-translator = Translator('./examples/good/pizza-pl.bpmn')
+translator = Translator('./examples/thesis/konto_bankowe.bpmn')
 translation = translator.translate_to_text()
 
 print('======= Opis modelu: =======')
