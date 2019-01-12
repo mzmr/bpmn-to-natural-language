@@ -144,38 +144,50 @@ class SentenceDatabase:
 
     sentences_and_splitting = [
         SentenceDef(
-            InflectionParams('subst', 'acc'), 1,
+            __infl_subst_acc, 1,
             None, None, None,
             ('W tym momencie następuje podział pracy na równoległe ścieżki, wykonywane jednocześnie przez ',
              ', opisane odpowiednio w punktach ', '.'))
     ]
 
     sentences_and_splitting_no_subject = [
-            ('W tym momencie następuje podział pracy na równoległe ścieżki opisane w punktach ', '.')
+        ('W tym momencie następuje podział pracy na równoległe ścieżki opisane w punktach ', '.'),
+        ('Poniższy punkt kontynuowany jest w punktach ', ' które realizowane są równolegle.'),
+        ('Kolejne zadania opisane zostały w punktach ', '. Należy je wykonać równolegle.')
     ]
 
     sentences_and_joining = [
         SentenceDef(
-            InflectionParams('subst', 'nom'), 1,
+            __infl_subst_nom, 1,
             None, None, None,
-            ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.'))
+            ('Teraz należy poczekać, aż ', ' zakończą swoje zadania, opisane na końcu punktów ', '.')),
+        SentenceDef(
+            __infl_subst_nom, 1,
+            None, None, None,
+            ('Gdy ', ' skończą swoje zadania z punktów ', ', można kontynuować poniższy proces.'))
     ]
 
     sentences_and_joining_no_subject = [
-            ('By kontynuować, należy poczekać, aż punkty ', ' zostaną zakończone.')
+        ('By kontynuować, należy poczekać, aż punkty ', ' zostaną zakończone.'),
+        ('Gdy punkty ', ' zostaną wykonane, można kontynuować poniższy proces.'),
+        ('Po zakończeniu punktów ', ' należy przejść do dalszej części opisu.'),
+        ('Proces należy kontynuować dopiero, gdy punkty ', ' zostaną zakończone.')
     ]
 
     sentences_xor_splitting = [
         (  # np: Kawa czy herbata? Jeśli X
-         ', to należy przejść do punktu ', '.', 'Można wybrać tylko jedną z odpowiedzi.')
+         ', to należy przejść do punktu ', '.', 'Można wybrać tylko jedną z odpowiedzi.'),
+        (', to dalszy opis znajduje się w punkcie ', '.', 'Można wybrać tylko jedną z odpowiedzi.')
     ]
 
     sentences_xor_joining = [
-        'Po zakończeniu wcześniej wybranej ścieżki, proces jest tu kontynuowany.'
+        'Po zakończeniu wcześniej wybranej ścieżki, proces jest tu kontynuowany.',
+        'Ten punkt kończy wybraną wcześniej ścieżkę.'
     ]
 
     sentences_or_splitting = [
-        (', to należy przejść do punktu ', '.', 'Można wybrać jedną lub więcej odpowiedzi.')
+        (', to należy przejść do punktu ', '.', 'Można wybrać jedną lub więcej odpowiedzi.'),
+        (', to dalszy opis znajduje się w punkcie ', '.', 'Można wybrać jedną lub więcej odpowiedzi.')
     ]
 
     sentences_or_joining = [
@@ -183,7 +195,8 @@ class SentenceDatabase:
     ]
 
     sentences_end = [
-        'Na tym kończy się powyższy proces.'
+        'Na tym kończy się powyższy proces.',
+        'Tym zadaniem proces zostaje zakończony.'
     ]
 
     sentences_group_end = [
