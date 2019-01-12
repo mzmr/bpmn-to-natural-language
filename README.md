@@ -1,9 +1,6 @@
 # bpmn-to-natural-language
 Generating natural (Polish) language descriptions for simple BPMN models.
 
-# bpmn-to-natural-language
-Generating natural (Polish) language descriptions for simple BPMN models.
-
 ## How to use this program?
 This is a Python library so you have to write a couple lines of Python code in order to use it.
 
