@@ -118,3 +118,5 @@ docs/_build/
 
 _unused_files/
 output/
+
+main.py
