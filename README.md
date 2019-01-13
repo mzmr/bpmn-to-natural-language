@@ -17,13 +17,13 @@ translator = Translator('./bpmn_models/some_interesting_process.bpmn')
 # 1) translate() method
 description_lists = translator.translate()
 
-for idx, desc in enumerate(description):
-    print(f'Group {idx + 1}.\n')
+for idx, desc in enumerate(description_lists):
+    print(f'Group {idx + 1}.')
 
     for sen_idx, sentence in enumerate(desc):
-        print(f'Sentence {sen_idx + 1}: {sentence}\n')
+        print(f'Sentence {sen_idx + 1}: {sentence}')
 
-    desc_list.append('\n')
+    print('\n')
 
 
 
