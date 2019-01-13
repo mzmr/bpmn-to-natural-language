@@ -28,7 +28,7 @@ for idx, desc in enumerate(description):
 
 
 # 2) translate_to_text() method
-description_text = translator.translate_to_text()
+description_text = translator.translate_to_text(False)  # or True
 
 print('Description:')
 print(description_text)
